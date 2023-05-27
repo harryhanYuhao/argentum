@@ -1,0 +1,14 @@
+# Ignoring Test files
+**/test/*
+!**/test/*.c
+!**/test/*.sh
+
+# Ignore for CMake
+**/CMakeFiles/
+**/build/
+
+# Ignoring executables
+*/*.out
+*.o
+
+*txt
