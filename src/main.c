@@ -1,3 +1,5 @@
+#include <pthread.h>
+
 #include "globals.h"
 #include "terminal.h"
 #include "utils.h"
@@ -14,19 +16,24 @@ void init(void) {
   E.cy = 0;
   E.offsety = 0;
   E.offsetx = 0;
+	E.mode = 1; // 1 insert mode
   getWindowSize(&E.screenrows, &E.screencols); // from "terminal.h"
 	
 	programUtilsInit(&PU);
 	textbufInit(&TEXTBUF);
 	keyInit(&KEY);
+
+  enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode
 }
 
 int main(int argc, char *argv[]) {
-  enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode
   init();
   if (argc > 1) {
     editorOpen(argv[1]);
-  }
+  } 
+	if (argc <= 1) {
+		editorOpen("nil_nomen.txt");
+	}
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
     if (PU.updated) {
       editorRefreshScreen();
@@ -35,4 +42,4 @@ int main(int argc, char *argv[]) {
     editorProcessKeyPress();
   }
   return 0;
-}
+} 

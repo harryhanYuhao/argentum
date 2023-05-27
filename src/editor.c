@@ -8,6 +8,7 @@ extern struct key KEY;
 extern textbuf TEXTBUF;
 
 /*** FILE IO ***/
+// Change to open() syscall
 void editorOpen(const char *filename) {
   FILE *fp = fopen(filename, "r");
   if (!fp) {
@@ -18,7 +19,6 @@ void editorOpen(const char *filename) {
   }
 
   textbufRead(&TEXTBUF, fp); // All lines of the file are read into TEXTBUF
-
   fclose(fp);
 }
 
@@ -37,7 +37,6 @@ char editorReadKey(void) {
   if (c != '\x1b') // if no escape sequence is read.
     return c;
 
-  // NOTE: INCOMPLETE CAPTURE FOR PAGE_UP
   char seq[3];
   for (int i = 0; i < 2; ++i)
     if (read(STDIN_FILENO, &seq[i], 1) < 1)
@@ -176,12 +175,17 @@ static int appendWelcomeMessage(struct abuf *ptr) {
 
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
-  for (unsigned int nrows = 0; nrows < E.screenrows; nrows++) {
+  for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
-    if (n_rows_to_draw >= TEXTBUF.size || n_rows_to_draw < 0) {
-      abAppend(abptr, "~", 3);
-    } else {
+    if (n_rows_to_draw >= TEXTBUF.size) {
+      abAppend(abptr, "~", 1);
+    } else if (nrows == E.screenrows){ // For debugging purpose
+			char *buf = (char*)malloc(100);
+			sprintf(buf, "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d\0", E.cx, E.cy, E.offsetx, E.offsety);
+			abAppend(abptr, buf, strlen(buf));	
+			free(buf);
+		} else {
       if (TEXTBUF.linebuf != NULL) {
         // temp points to the string of the row to be drawn.
         char *temp = *(TEXTBUF.linebuf + n_rows_to_draw);
@@ -208,32 +212,30 @@ void editorRefreshScreen(void) {
   struct abuf ab = ABUF_INIT;
 
   abAppend(&ab, "\x1b[?25l", 6); // Hide cursor
-  abAppend(&ab, "\x1b[H", 3);    // Move cursor to top left
 
   editorDrawRows(&ab);
 
   // Move mouse to correct position
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+	// move cursor, row:cols; top left is 1:1
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
                                    // strlen is from <string.h>
 
   abAppend(&ab, "\x1b[?25h", 6); // Show cursor
-  write(STDIN_FILENO, "\x1b[2J\x1b[H", 7);
+  write(STDIN_FILENO, "\x1b[2J\x1b[H", 7);  // erase entire screen
   write(STDIN_FILENO, ab.b, ab.len);
   abFree(&ab);
 }
 
 int editorScrollDown(void) {
-  if (E.offsety < TEXTBUF.size + E.screenrows / 4)
-    E.offsety++;
+  E.offsety++;
   return 1;
 }
 
 int editorScrollUp(void) {
-  if (E.offsety > -E.screenrows / 2)
-    E.offsety--;
-  return 1;
+	E.offsety--;
+	return 1;
 }
 
 int editorScrollLeft(void) {
@@ -253,14 +255,12 @@ int editorMoveCursor(char key) {
   PU.updated = 1;
   switch (key) {
   case ARROW_UP:
-    if (E.cy > E.screenrows / 4 || E.offsety < 0){
-			if (E.cy>0) E.cy--;
-		}
+		if (E.cy>0) E.cy--;
     else
       editorScrollUp();
     return 0;
   case ARROW_DOWN:
-    if (E.cy < 3 * E.screenrows / 4 - 1)
+    if (E.cy <  E.screenrows -1)
       E.cy++;
     else
       editorScrollDown();

@@ -17,11 +17,11 @@ void textbufInit(textbuf *t) {
 static int addtextbuf(textbuf * ptrtb, char * string){
 	(ptrtb->size)++;
 	int stringLength = strlen(string);
-	char ** ptrbuf = (char**)realloc(ptrtb->linebuf, (ptrtb->size)*sizeof(char*));
-	ptrtb->linebuf = ptrbuf;
-	(ptrtb->linebuf)[ptrtb->size - 1] = (char*)calloc(stringLength + 1, 1);
-	memcpy((ptrtb->linebuf)[ptrtb->size - 1], string, stringLength - 1);
-	(ptrtb->linebuf)[ptrtb->size - 1][stringLength]= '\0';
+	ptrtb->linebuf = (char**)realloc(ptrtb->linebuf, (ptrtb->size)*sizeof(char*));
+	// ptrtb->linebuf = ptrbuf;
+	(ptrtb->linebuf)[ptrtb->size - 1] = (char*)calloc(stringLength, 1);
+	memcpy((ptrtb->linebuf)[ptrtb->size - 1], string, stringLength -1); // ignore '\n', which is read by getline()
+	(ptrtb->linebuf)[ptrtb->size - 1][stringLength-1] = '\0';
 	return 1;
 }
 

@@ -11,3 +11,8 @@ Successful implementation of function `textbufDeleteChar` and `textbufInputChar`
 
 Created the struct `key` for keylistening. The modifiers of many declarations are justed to unsigned or const where appropriate.
 
+### May 27
+
+Refactor, create new file `editor.h`, `editor.c`.
+
+Fix the that that view mode starting at the third line. 
