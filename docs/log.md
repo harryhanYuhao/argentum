@@ -16,3 +16,9 @@ Created the struct `key` for keylistening. The modifiers of many declarations ar
 Refactor, create new file `editor.h`, `editor.c`.
 
 Fix the that that view mode starting at the third line. 
+
+### May 28
+
+Replace some `sprintf()` with `snprintf()` as the former may not be memory safe.
+
+Found the source of the bug that the view mode starting at the third line. This bug is due to line 182 of `editor.c`: the number of the lines input into `abptr` was more than the height of the screen.

@@ -95,6 +95,8 @@ void editorProcessKeyPress(void) {
 		E.offsety = 0;
 		E.cy = E.screenrows-1;
     break;
+	case (CTRL_KEY('n')):
+		break;
 
   case ARROW_LEFT:
   case ARROW_RIGHT:
@@ -137,7 +139,8 @@ void editorSaveFile(char *ptr){
 	int fd = open(ptr, O_CREAT | O_RDWR, 0644);	
 	if (fd == -1){
 		char message [64];
-		sprintf(message, "Failed to open file: %s", ptr);
+		// sprintf shall be generally avoided
+		snprintf(message, sizeof(message), "Failed to open file: %s", ptr);
 		die(message);
 	}
 	for (unsigned int i = 0; i < TEXTBUF.size; i++){
@@ -175,14 +178,16 @@ static int appendWelcomeMessage(struct abuf *ptr) {
 
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
-  for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {
+	// BUG: THIS IS WHY VIEWER STARTS AT THE THIRD LINE (NOW FIXED)
+  for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {  // number of iteration is siginificant!
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
     if (n_rows_to_draw >= TEXTBUF.size) {
       abAppend(abptr, "~", 1);
-    } else if (nrows == E.screenrows){ // For debugging purpose
-			char *buf = (char*)malloc(100);
-			sprintf(buf, "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d\0", E.cx, E.cy, E.offsetx, E.offsety);
+    } else if (nrows == E.screenrows-2){ // For debugging purpose
+			const int buf_size = 100;
+			char *buf = (char*)malloc(buf_size);
+			snprintf(buf, buf_size, "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d", E.cx, E.cy, E.offsetx, E.offsety);
 			abAppend(abptr, buf, strlen(buf));	
 			free(buf);
 		} else {
