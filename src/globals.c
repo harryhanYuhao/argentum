@@ -39,30 +39,34 @@ int textbufRead(textbuf *tb, FILE *fp) {
 }
 
 void textbufInputChar(textbuf *ptrtb, char inputChar, int x, int y){
-	char *linebuf = ptrtb->linebuf[y+1];
+	char *linebuf = ptrtb->linebuf[y];
 	int len = strlen(linebuf);  
-	if (x <= len+1  && x>3){
+	if (x <= len  && x>=0){
 	// strlen does not count the final null terminator.
 	linebuf=realloc(linebuf, len+2); // extra space for null terminator
 	// memmove: <string.h>, c11
 	// memmove(dest, src, n)
-	memmove(&linebuf[x], &linebuf[x-1], (len-x+1)*sizeof(char));
-	linebuf[x-1]=inputChar; // Assign Character
+	// This is the index:
+	// 0, 1, 2, ... , x, x+1, ... len 
+	// there are 'x' elements from 0 to x, 
+	// 'len-x' element from x to the end of array
+	memmove(&linebuf[x+1], &linebuf[x], (len-x)*sizeof(char));
+	linebuf[x]=inputChar; // Assign Character
 	linebuf[len+1] = '\0'; 
-	ptrtb->linebuf[y+1]=linebuf;
+	ptrtb->linebuf[y]=linebuf;
 	}
 }
 
 void textbufDeleteChar(textbuf *ptrtb, int x, int y){
-	char *linebuf = ptrtb->linebuf[y+1];
+	char *linebuf = ptrtb->linebuf[y];
 	int len = strlen(linebuf);  
 		// the left padding length shall be included
 		// needs to take account of the null Character
-	if (x<= len+1 && x>4){  
+	if (x<= len+1 && x>0){  
 	linebuf=realloc(linebuf, len+2); // extra space for null terminator
-	memmove(&linebuf[x-2], &linebuf[x-1], (len-x+2)*sizeof(char));
+	memmove(&linebuf[x-1], &linebuf[x], (len-x+1)*sizeof(char));
 	linebuf=realloc(linebuf, len); // extra space for null terminator
-	ptrtb->linebuf[y+1]=linebuf;
+	ptrtb->linebuf[y]=linebuf;
 	}
 }
 

@@ -178,16 +178,17 @@ static int appendWelcomeMessage(struct abuf *ptr) {
 
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
-	// BUG: THIS IS WHY VIEWER STARTS AT THE THIRD LINE (NOW FIXED)
   for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {  // number of iteration is siginificant!
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
     if (n_rows_to_draw >= TEXTBUF.size) {
-      abAppend(abptr, "~", 1);
+      // abAppend(abptr, "~", 1);
     } else if (nrows == E.screenrows-2){ // For debugging purpose
 			const int buf_size = 100;
 			char *buf = (char*)malloc(buf_size);
-			snprintf(buf, buf_size, "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d", E.cx, E.cy, E.offsetx, E.offsety);
+			snprintf(buf, buf_size, 
+						"E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; screenrows: %d; screencols: %d",
+						E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
 			abAppend(abptr, buf, strlen(buf));	
 			free(buf);
 		} else {
@@ -204,11 +205,11 @@ void editorDrawRows(struct abuf *abptr) {
         unsigned int bufferlen = stringlen - xoffset; // same as strlen(temp)
         bufferlen = (bufferlen >= E.screencols) ? E.screencols - 1 : bufferlen;
 
-        abAppend(abptr, " ", 1);  // The space before the Line.
+        // abAppend(abptr, " ", 1);  // The space before the Line.
         abAppend(abptr, temp, bufferlen);
       }
     }
-    abAppend(abptr, "\r\n", 2);
+		if (nrows!=E.screencols-2) abAppend(abptr, "\r\n", 2);
   }
 }
 
@@ -271,7 +272,7 @@ int editorMoveCursor(char key) {
       editorScrollDown();
     return 0;
   case ARROW_LEFT:
-    if (E.cx > 2){ // padding
+    if (E.cx > 0){ // padding
       E.cx--;
     if (E.cx < E.screencols / 4)
       editorScrollLeft();
