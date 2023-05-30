@@ -96,6 +96,10 @@ void editorProcessKeyPress(void) {
 		E.cy = E.screenrows-1;
     break;
 	case (CTRL_KEY('n')):
+		textbufNewLineAbove(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
+		break;
+	case (CTRL_KEY('e')):
+		
 		break;
 
   case ARROW_LEFT:

@@ -22,3 +22,12 @@ Fix the that that view mode starting at the third line.
 Replace some `sprintf()` with `snprintf()` as the former may not be memory safe.
 
 Found the source of the bug that the view mode starting at the third line. This bug is due to line 182 of `editor.c`: the number of the lines input into `abptr` was more than the height of the screen.
+
+## May 30
+
+Added function `textbufNewLine Above` 
+
+Change the mechanism of `disableRAWMode()`. Before change, this function will reset the terminal to the state when the program starts. I change it so that this function always sets the terminal to normal mode.  
+
+
+

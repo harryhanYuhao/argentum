@@ -69,7 +69,7 @@ void enableRAWMode(void) {
 	// See devel.md for what does these flags do.
 	raw.c_lflag &= ~(ECHO|ICANON|ISIG|IEXTEN);
 	raw.c_iflag &= ~(IXON|ICRNL|BRKINT|INPCK|ISTRIP);
-  raw.c_oflag &= ~( OPOST); 
+  raw.c_oflag &= ~(OPOST); 
   raw.c_cflag &= ~(CS8);
 
   raw.c_cc[VMIN] = 0;  // what read() returns after timeout
@@ -80,8 +80,26 @@ void enableRAWMode(void) {
   }
 }
 
-void disableRAWMode(void) {
-  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1) {
-    die("error occur in function disableRAWMode");
+void disableRAWMode(void) {	
+	// Check if the original terminal mode is normal mode
+	// if so, restore it
+	if (E.orig_termios.c_lflag | ECHO == E.orig_termios.c_lflag){
+		tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios);
+		return;
+	}
+
+	// If not, restore to normal mode
+  struct termios raw;
+  if (tcgetattr(STDIN_FILENO, &raw) == -1) {
+		// STDIN_FILENO is the standard input
+    die("tcgetattr");
+	}
+	raw.c_lflag |= (ECHO|ICANON|ISIG|IEXTEN);
+	raw.c_iflag |= (IXON|ICRNL|BRKINT|INPCK|ISTRIP);
+  raw.c_oflag |= (OPOST); 
+  raw.c_cflag |= (CS8);
+
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
+    die("tcsetattr");
   }
 }
