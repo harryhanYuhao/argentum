@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     editorOpen(argv[1]);
   } 
 	if (argc <= 1) {
-		editorOpen("nil_nomen.txt");
+		editorOpen("aaa.txt");
 	}
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
     if (PU.updated) {

@@ -83,7 +83,7 @@ void editorProcessKeyPress(void) {
   switch (c) {
   case (CTRL_KEY('q')):
     clearScreen();
-		editorSaveFile("aaa.txt");
+		editorSaveFile("nil_nomen.txt");
     PU.running = 0;
     break;
 
@@ -96,7 +96,7 @@ void editorProcessKeyPress(void) {
 		E.cy = E.screenrows-1;
     break;
 	case (CTRL_KEY('n')):
-		textbufNewLineAbove(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
+		textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
 		break;
 	case (CTRL_KEY('e')):
 		
@@ -140,11 +140,11 @@ void editorProcessKeyPress(void) {
 void editorSaveFile(char *ptr){
 	// 0644 is octal, equivalent to 110100100 in binary
 	// Owner can read and write, all other can only read.
-	int fd = open(ptr, O_CREAT | O_RDWR, 0644);	
+	int fd = open(ptr, O_CREAT | O_WRONLY | O_TRUNC, 0644);	
 	if (fd == -1){
-		char message [64];
-		// sprintf shall be generally avoided
-		snprintf(message, sizeof(message), "Failed to open file: %s", ptr);
+		const int message_size = 64;
+		char *message = (char*)calloc(message_size, sizeof(char));
+		snprintf(message, message_size, "Failed to open file: %s", ptr);
 		die(message);
 	}
 	for (unsigned int i = 0; i < TEXTBUF.size; i++){

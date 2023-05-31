@@ -7,6 +7,8 @@
 - Create a easy api to show warning message.
 - Create appropriate padding (line number, etc)
 
-## 
+## Good to Have
+
+- Replace reading file method with syscall
 
 

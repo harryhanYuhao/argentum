@@ -25,9 +25,13 @@ Found the source of the bug that the view mode starting at the third line. This 
 
 ## May 30
 
-Added function `textbufNewLine Above` 
+Added function `textbufNewLineAbove()` 
 
 Change the mechanism of `disableRAWMode()`. Before change, this function will reset the terminal to the state when the program starts. I change it so that this function always sets the terminal to normal mode.  
 
+## May 31 
 
+Fixed bugs for function `textbufNewLineAbove()`. Rename it to `textbufEnter()`. 
+
+`textbufEnter(int x, int y)` now acts like `enter` in a normal editor, where a new line is created below, holding the characters of the old line from the cursor, while the old line contains the character upto the cursor.
 

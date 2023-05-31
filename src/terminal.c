@@ -83,7 +83,7 @@ void enableRAWMode(void) {
 void disableRAWMode(void) {	
 	// Check if the original terminal mode is normal mode
 	// if so, restore it
-	if (E.orig_termios.c_lflag | ECHO == E.orig_termios.c_lflag){
+	if ((E.orig_termios.c_lflag | ECHO) == E.orig_termios.c_lflag){
 		tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios);
 		return;
 	}

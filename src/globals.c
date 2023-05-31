@@ -76,17 +76,24 @@ void textbufDeleteChar(textbuf *ptrtb, int x, int y) {
 
 // Insert New line above with only '\0'
 // Input E.cy + E.offsety
-void textbufNewLineAbove(textbuf *ptrtb, int x, int y) {
-	int len = ptrtb->size;
-	ptrtb->size++;
-	if (y <= len + 1 && y > 0) {
+void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
+	const unsigned int len = ptrtb->size;
+	if (y <= len + 1) {
+		ptrtb->size++;
 		char **linebuf = ptrtb->linebuf;
 		linebuf = realloc(linebuf, (len + 1)*sizeof(char *));
+		ptrtb->linebuf = linebuf;  // in case of realloc changed the pointer
 		memmove(&linebuf[y + 1], &linebuf[y], (len - y) * sizeof(char *));
-		linebuf[y] = (char *)realloc(linebuf[y], 1 * sizeof(char));
-		// linebuf[y] = (char *)calloc(1, sizeof(char));
-		linebuf[y][0] = '\0';
-		ptrtb->linebuf = linebuf;
+		//calloc is required to create a new pointer with allocated space
+		linebuf[y] = (char *)calloc(1+x, sizeof(char));
+		// Modify the line above
+		memcpy(linebuf[y], linebuf[y + 1], x*sizeof(char));
+		linebuf[y][x] = '\0';
+		// Modify the line below
+		const unsigned int strLength = strlen(linebuf[y + 1]);
+		memmove(linebuf[y + 1], linebuf[y + 1] + x, strLength - x);
+		linebuf[y+1][strLength-x+1] = '\0';
+		linebuf[y+1] = realloc(linebuf[y+1], strLength-x+1);
 	}
 }
 

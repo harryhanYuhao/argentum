@@ -61,7 +61,7 @@ struct key {
 
 void textbufInputChar(textbuf *, char, int x, int y);
 void textbufDeleteChar(textbuf *, int x, int y);
-void textbufNewLineAbove(textbuf *, int x, int y);
+void textbufEnter(textbuf *, unsigned int x, unsigned int y);
 
 void keyInit(struct key*);
 void programUtilsInit(struct programUtils *);
