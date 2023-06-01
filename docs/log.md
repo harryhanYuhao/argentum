@@ -35,3 +35,10 @@ Fixed bugs for function `textbufNewLineAbove()`. Rename it to `textbufEnter()`.
 
 `textbufEnter(int x, int y)` now acts like `enter` in a normal editor, where a new line is created below, holding the characters of the old line from the cursor, while the old line contains the character upto the cursor.
 
+
+# June 1
+
+Key listener refactored. 
+Now each key read function `int editorReadKey(void)` will modify the global struct `struct key KEY` from which key processing function `int editorProcessKeyPress(void)`will read. 
+
+Tomorrow delete line function shall be added and the editor would adequately perform the most fundamental function one may expect. 

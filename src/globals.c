@@ -4,6 +4,7 @@
 struct editorConfig E;
 struct programUtils PU;
 struct key KEY;
+struct keyValue V;
 textbuf TEXTBUF;
 
 void textbufInit(textbuf *t) {
@@ -74,7 +75,6 @@ void textbufDeleteChar(textbuf *ptrtb, int x, int y) {
   }
 }
 
-// Insert New line above with only '\0'
 // Input E.cy + E.offsety
 void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
   const unsigned int len = ptrtb->size;
@@ -97,14 +97,36 @@ void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
   }
 }
 
-void keyInit(struct key *K) {
-  K->key = 0;
-  K->special = 0;
-  if (K->key != 0 || K->special != 0)
-    die("Failed to Init struct key!");
+int keyInit(struct key *K) {
+  K->key[0] = 0;
+  if (K->key[0] != 0)
+		return -1;
+	return 0;
+}
+
+int keyRefresh(struct key *K){
+	for (int i = 0; i < 8; i++){
+		K->key[i] = 0;
+		if (K->key[i] != 0) return -1;
+	}
+	return 0;
 }
 
 void programUtilsInit(struct programUtils *p) {
   p->running = 1;
   p->updated = 1;
+}
+
+
+int keyValueInit(struct keyValue *kV){
+	kV->ARROW_UP = 1065;
+	kV->ARROW_DOWN = 1066;
+	kV->ARROW_LEFT = 1067;
+	kV->ARROW_RIGHT = 1068;
+	kV->PAGE_UP = 1053;
+	kV->PAGE_DOWN = 1054;
+	kV->DEL_KEY = 1051;
+	kV->END_KEY = 1070;
+	kV->HOME_KEY = 1072;
+	return 1;
 }

@@ -6,11 +6,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-char editorReadKey(void);
-void editorProcessKeyPress(void);
+int editorReadKey(void);
+int editorProcessKeyPress(void);
 void editorRefreshScreen(void);
 void editorInit(void);
-int editorMoveCursor(char);
+int editorMoveCursor(int);
 void editorSaveFile(char *);
 void editorOpen(const char *);
 

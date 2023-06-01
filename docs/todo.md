@@ -10,5 +10,6 @@
 ## Good to Have
 
 - Replace reading file method with syscall
+- Make `struct keyValue V` a const struct.
 
 

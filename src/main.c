@@ -8,6 +8,7 @@
 extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
+extern struct keyValue V;
 extern textbuf TEXTBUF;
 
 /*** init ***/
@@ -22,6 +23,7 @@ void init(void) {
 	programUtilsInit(&PU);
 	textbufInit(&TEXTBUF);
 	keyInit(&KEY);
+	keyValueInit(&V);
 
   enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode
 }
@@ -35,11 +37,17 @@ int main(int argc, char *argv[]) {
 		editorOpen("aaa.txt");
 	}
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
+		if (editorReadKey() == -1)
+			die("editorReadKey Failed");
     if (PU.updated) {
+			if (KEY.key[0]){
+				editorProcessKeyPress();
+				keyRefresh(&KEY);
+			}
       editorRefreshScreen();
       PU.updated = 0;
     }
-    editorProcessKeyPress();
   }
+	clearScreen();
   return 0;
 } 

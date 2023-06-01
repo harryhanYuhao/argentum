@@ -12,23 +12,37 @@ Struct defined in `global.h`:
 
 `typedef struct {int size; char **linebuf;}; textbuf` 
 
-## `main.c` 
+## `editor.c` 
 
 ### `char editorReadKey(void)`
 
-Read one key from `STDIN_FILENO`. Return char correspounding to normal keypress. If it is an escaped keypress (thus a special key), return the correspounding `enum editorkey`.
+Read one key from `STDIN_FILENO`. Return its keycode and store it in the gloabl ` KEY` struct. The key code are idiosyncratically defined as below
 
-Here is a list of special keys:
+####  Key Code 
+
+- A key code is an integer representing one and only one key. (with few exception `<C-m>` and `<Enter>` are both represented by 13.)
+- The Key Code is the ascii code if such key has a correspounding one. (Including `<backspace>, <enter>, <ctrl-key>` etc.).
+- Key code of others (usually escaped keys) are idiosyncratically defined to be greater than 1000, and is defined below.
+
+- `ARROW_UP`: 1065
+- `ARROW_DOWN`: 1066
+- `ARROW_LEFT`: 1067
+- `ARROW_RIGHT`: 1068
+- `DELETE`: 1051
+- `PAGE_UP`: 1053
+- `PAGE_DOWN`: 1054
+- `END`: 1070
+- `HOME`: 1072
 
 - `ARROW_UP`: \x1b[A
 - `ARROW_DOWN`: \x1b[B
 - `ARROW_RIGHT`: \x1b[C
 - `ARROW_LEFT`: \x1b[D
-- `HOME`: \x1b[H
-- `END`: \x1b[F
 - `DELETE`: \x1b[3~
 - `PAGE_UP`: \x1b[5~
 - `PAGE_DOWN`: \x1b[6~
+- `END`: \x1b[F
+- `HOME`: \x1b[H
 
 Note that the escape sequence is read in 3 parts, the first part is always
 '\x1b', the second part is always '[', and the third part is the actual

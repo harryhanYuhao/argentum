@@ -5,6 +5,7 @@
 extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
+extern struct keyValue V;
 extern textbuf TEXTBUF;
 
 /*** FILE IO ***/
@@ -24,19 +25,23 @@ void editorOpen(const char *filename) {
 
 /*** Input ***/
 /// Reads and returns the key once.
-char editorReadKey(void) {
-  int nread;
-  char c;
-  while ((nread = read(STDIN_FILENO, &c, 1)) < 1) {
-    // read returns '\0' if no input is received after 0.1 s
-    // read returns number of byte read. -1 when failure.
-    if (nread == -1 && errno != EAGAIN)
-      die("editorReadKey failed!");
-  }
+int editorReadKey(void) {
+	char c;
+	int nread = read(STDIN_FILENO, &c, 1);
+	// read returns '\0' if no input is received after 0.1 s
+	// read returns number of byte read. -1 when failure.
+	if (nread == -1 && errno != EAGAIN)
+		return -1;
 
-  if (c != '\x1b') // if no escape sequence is read.
-    return c;
+	if (!nread) return 0;
 
+	// Test if it is a normal keypress
+	PU.updated = 1;
+  if (c != '\x1b' ){ 
+		KEY.key[0] = c;
+		return c;
+	}
+	
   char seq[3];
   for (int i = 0; i < 2; ++i)
     if (read(STDIN_FILENO, &seq[i], 1) < 1)
@@ -45,96 +50,100 @@ char editorReadKey(void) {
   if (seq[0] != '[')
     return '\x1b';
 
-  if (seq[1] == '5')
-    return PAGE_UP;
-  if (seq[1] == '6')
-    return PAGE_DOWN;
-  if (seq[1] == '3')
-    return DEL_KEY;
-  if (seq[1] == '1')
-    return HOME_KEY;
-
- //  if (read(STDIN_FILENO, &seq[2], 1) < 1)
-	// 	return '\x1b';
-	// if (seq[2]!='~') 
-	// 	return '\x1b';
   switch (seq[1]) {
+	case '5':
+  if (read(STDIN_FILENO, &seq[2], 1) < 1)
+		return '\x1b';
+	if (seq[2]!='~') {
+		return '\x1b';
+	}
+		KEY.key[0] = V.PAGE_UP;
+		break;
+	case '6':
+  if (read(STDIN_FILENO, &seq[2], 1) < 1)
+		return '\x1b';
+	if (seq[2]!='~') {
+		return '\x1b';
+	}
+		KEY.key[0] = V.PAGE_DOWN;
+		break;
   case 'A':
-    return ARROW_UP; // TESTED
+		KEY.key[0] = V.ARROW_UP;
+		break;
   case 'B':
-    return ARROW_DOWN; // TESTED
+		KEY.key[0] = V.ARROW_DOWN;
+		break;
   case 'C':
-    return ARROW_RIGHT; // TESTED
+		KEY.key[0] = V.ARROW_RIGHT;
+		break;
   case 'D':
-    return ARROW_LEFT; // TESTED
+		KEY.key[0] = V.ARROW_LEFT;
+		break;
   case 'H':
-    return HOME_KEY; // TESTED
+		KEY.key[0] = V.HOME_KEY;
+		break;
   case 'F':
-    return END_KEY;
+		KEY.key[0] = V.END_KEY;
+		break;
   default:
     return '\x1b';
   }
-  return '\x1b';
+	if (KEY.key[0] != '\x1b')
+		return KEY.key[0];
+	else return '\x1b';
 }
 
-void editorProcessKeyPress(void) {
-  char c = editorReadKey();
-  PU.updated = 1;
-  switch (c) {
-  case (CTRL_KEY('q')):
-    clearScreen();
-		editorSaveFile("nil_nomen.txt");
-    PU.running = 0;
-    break;
-
-  case (CTRL_KEY('z')):
+int editorProcessKeyPress(void) {
+	unsigned int c = KEY.key[0];
+	if ( c == '\0')
+		return 0;
+ 	if (c == CTRL_KEY('q')) {
+		clearScreen();
+		editorSaveFile("savedTo.txt");
+		// Quit the program
+		PU.running = 0;
+		}
+	else if (c == CTRL_KEY('z')){
 		E.offsety = TEXTBUF.size - E.screenrows;
 		E.cy = 0;
-    break;
-  case (CTRL_KEY('x')):
+		}
+	else if (c == CTRL_KEY('x')){
 		E.offsety = 0;
 		E.cy = E.screenrows-1;
-    break;
-	case (CTRL_KEY('n')):
+		}
+	else if (c == CTRL_KEY('m')){  // same as <Enter>, 13
 		textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
-		break;
-	case (CTRL_KEY('e')):
-		
-		break;
-
-  case ARROW_LEFT:
-  case ARROW_RIGHT:
-  case ARROW_DOWN:
-  case ARROW_UP:
-    editorMoveCursor(c);
-    break;
-
-  case PAGE_UP: // PAGE_UP, PAGE_DOWN tested
-  case PAGE_DOWN: {
-    unsigned int times = E.screenrows;
-    while (times--)
-      editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-    break;
-  }
-  case HOME_KEY:
-  case END_KEY:
-  case DEL_KEY:
-    break;
-	case 127: // Backspace
+		E.cx=0;
+		E.cy++;
+		}
+	else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP)
+		editorMoveCursor(c);
+	else if (c == V.PAGE_UP){
+		unsigned int times = E.screenrows;
+		while (times--)
+			editorMoveCursor(V.ARROW_UP);
+	}
+	else if (c == V.PAGE_DOWN){
+		unsigned int times = E.screenrows;
+		while (times--)
+			editorMoveCursor(V.ARROW_DOWN);
+	}
+	else if (c == V.HOME_KEY || c == V.END_KEY || c == V.DEL_KEY)
+		;
+	else if (c == 127){ // Backspace
 		textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
 
-		editorMoveCursor(ARROW_LEFT);
-		// textbufInputChar(&TEXTBUF, 'a', E.cx+E.offsetx, E.cy+E.offsety);
-		break;
-	case 8:
-		textbufInputChar(&TEXTBUF, 'a', E.cx+E.offsetx, E.cy+E.offsety);
-		break;
-  default:
-		// Input
-		textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
-		editorMoveCursor(ARROW_RIGHT);
-    break;
-  }
+	 	editorMoveCursor(V.ARROW_LEFT);
+	 	// textbufInputChar(&TEXTBUF, 'a', E.cx+E.offsetx, E.cy+E.offsety);
+	 }
+	 else if (c == 27)
+	 	;
+	 else if (c < 1000){
+	 	// Input
+	 	textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
+	 	editorMoveCursor(V.ARROW_RIGHT);
+	 }
+	return 1;
 }
 
 void editorSaveFile(char *ptr){
@@ -191,7 +200,7 @@ void editorDrawRows(struct abuf *abptr) {
 			const int buf_size = 100;
 			char *buf = (char*)malloc(buf_size);
 			snprintf(buf, buf_size, 
-						"E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; screenrows: %d; screencols: %d",
+						"E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
 						E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
 			abAppend(abptr, buf, strlen(buf));	
 			free(buf);
@@ -259,30 +268,28 @@ int editorScrollRight(void) {
   return 1;
 }
 
-// TODO: Protection mechanism (stop from scrolling too far away from text 
-// TODO: Needs to be reworked
-int editorMoveCursor(char key) {
+int editorMoveCursor(int key) {
   PU.updated = 1;
   switch (key) {
-  case ARROW_UP:
+  case 1065: // up
 		if (E.cy>0) E.cy--;
     else
       editorScrollUp();
     return 0;
-  case ARROW_DOWN:
+  case 1066:  //down 
     if (E.cy <  E.screenrows -1)
       E.cy++;
     else
       editorScrollDown();
     return 0;
-  case ARROW_LEFT:
+  case 1067: //left
     if (E.cx > 0){ // padding
       E.cx--;
     if (E.cx < E.screencols / 4)
       editorScrollLeft();
 			}
     return 0;
-  case ARROW_RIGHT:
+  case 1068: //right
     if (E.cx < E.screencols - 1)
       E.cx++;
     if (E.cx > 3 * E.screencols / 4)
