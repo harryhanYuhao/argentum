@@ -21,27 +21,18 @@ typedef struct {
   char **linebuf;    // A pointer storing pointer to line buffer
 } textbuf;           // textbuffer holding all lines.
 
-void textbufInputChar(textbuf *, char, int x, int y);
-void textbufDeleteChar(textbuf *, int x, int y);
-void textbufEnter(textbuf *, unsigned int x, unsigned int y);
 
 #include <stddef.h>
 void textbufInit(textbuf *);
+int textbufGetNthLineLength(textbuf *, int);
 
 #include <stdio.h>
 int textbufRead(textbuf *, FILE *);
 
-enum editorKey {
-  ARROW_LEFT = 100,
-  ARROW_RIGHT,
-  ARROW_UP,
-  ARROW_DOWN,
-  PAGE_UP,
-  PAGE_DOWN,
-  DEL_KEY,
-  HOME_KEY,
-  END_KEY
-};
+void textbufInputChar(textbuf *, char, int, int);
+void textbufDeleteChar(textbuf *, int, int);
+void textbufEnter(textbuf *, unsigned int, unsigned int);
+int textbufDeleteLine(textbuf *, unsigned int);
 
 struct editorConfig {
   unsigned int cx, cy;     // cursor position. cx horizantol, cy vertical

@@ -10,8 +10,10 @@ int editorReadKey(void);
 int editorProcessKeyPress(void);
 void editorRefreshScreen(void);
 void editorInit(void);
-int editorMoveCursor(int);
 void editorSaveFile(char *);
 void editorOpen(const char *);
+int editorMoveCursor(int);
+int editorMoveCursorXTo(unsigned int);
+int editorMoveCursorYTo(unsigned int);
 
 #endif // For EDITOR_H

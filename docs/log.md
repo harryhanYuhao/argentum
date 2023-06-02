@@ -42,3 +42,7 @@ Key listener refactored.
 Now each key read function `int editorReadKey(void)` will modify the global struct `struct key KEY` from which key processing function `int editorProcessKeyPress(void)`will read. 
 
 Tomorrow delete line function shall be added and the editor would adequately perform the most fundamental function one may expect. 
+
+# June 2
+
+Delete line function successfully implemented and integrated with the backspace.

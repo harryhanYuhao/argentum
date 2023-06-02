@@ -131,10 +131,14 @@ int editorProcessKeyPress(void) {
 	else if (c == V.HOME_KEY || c == V.END_KEY || c == V.DEL_KEY)
 		;
 	else if (c == 127){ // Backspace
-		textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
-
-	 	editorMoveCursor(V.ARROW_LEFT);
-	 	// textbufInputChar(&TEXTBUF, 'a', E.cx+E.offsetx, E.cy+E.offsety);
+		if (E.cx+E.offsetx > 0){
+			textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+			editorMoveCursor(V.ARROW_LEFT);
+		} else {
+			textbufDeleteLine(&TEXTBUF, E.cy+E.offsety);
+			editorMoveCursor(V.ARROW_UP);
+			editorMoveCursorXTo(textbufGetNthLineLength(&TEXTBUF, E.cy+E.offsety));
+		}
 	 }
 	 else if (c == 27)
 	 	;
@@ -153,7 +157,7 @@ void editorSaveFile(char *ptr){
 	if (fd == -1){
 		const int message_size = 64;
 		char *message = (char*)calloc(message_size, sizeof(char));
-		snprintf(message, message_size, "Failed to open file: %s", ptr);
+		snprintf(message, message_size, "Failed to open or create file: %s", ptr);
 		die(message);
 	}
 	for (unsigned int i = 0; i < TEXTBUF.size; i++){
@@ -268,6 +272,16 @@ int editorScrollRight(void) {
   return 1;
 }
 
+int editorMoveCursorXTo(unsigned int x){
+	E.cx = x;
+	return 1;
+}
+
+int editorMoveCursorYTo( unsigned int y){
+	E.cy = y;
+	return 1;
+}
+
 int editorMoveCursor(int key) {
   PU.updated = 1;
   switch (key) {
@@ -283,16 +297,15 @@ int editorMoveCursor(int key) {
       editorScrollDown();
     return 0;
   case 1067: //left
-    if (E.cx > 0){ // padding
+    if (E.cx > 0) // padding
       E.cx--;
-    if (E.cx < E.screencols / 4)
+		else 
       editorScrollLeft();
-			}
     return 0;
   case 1068: //right
     if (E.cx < E.screencols - 1)
       E.cx++;
-    if (E.cx > 3 * E.screencols / 4)
+		else 
       editorScrollRight();
     return 0;
   default:

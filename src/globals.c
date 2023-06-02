@@ -14,6 +14,10 @@ void textbufInit(textbuf *t) {
     die("Failed to Init Textbuf!");
 }
 
+int textbufGetNthLineLength(textbuf *t, int y){
+	return strlen(t->linebuf[y]);
+}
+
 #include <string.h>
 static int addtextbuf(textbuf *ptrtb, char *string) {
   (ptrtb->size)++;
@@ -96,6 +100,15 @@ void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
     linebuf[y + 1] = realloc(linebuf[y + 1], strLength - x + 1);
   }
 }
+
+int textbufDeleteLine(textbuf *ptrtb, unsigned int y){
+	free(ptrtb->linebuf[y]);
+	memmove(&(ptrtb->linebuf[y]), &(ptrtb->linebuf[y+1]), (ptrtb->size - y - 1) * sizeof(char *));
+	ptrtb->linebuf = realloc(ptrtb->linebuf, (ptrtb->size - 1));
+	ptrtb->size--;
+	return 1;
+}
+
 
 int keyInit(struct key *K) {
   K->key[0] = 0;
