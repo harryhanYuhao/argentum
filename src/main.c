@@ -48,6 +48,13 @@ int main(int argc, char *argv[]) {
       PU.updated = 0;
     }
   }
+
+  if (argc > 1) {
+    editorSaveFile(argv[1]);
+  } 
+	if (argc <= 1) {
+		editorSaveFile("savedTo.txt");
+	}
 	clearScreen();
   return 0;
 } 

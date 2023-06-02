@@ -47,6 +47,14 @@ int textbufRead(textbuf *tb, FILE *fp) {
   return 1;
 }
 
+int textbufInitForEmptyFile(textbuf *t){
+	t->linebuf = (char **) calloc(1, sizeof(char*));
+	t->linebuf[0] = (char *) calloc(1, sizeof(char*));
+	t->linebuf[0][0] = '\0';
+	t->size = 1;
+	return 1;
+}
+
 void textbufInputChar(textbuf *ptrtb, char inputChar, int x, int y) {
   char *linebuf = ptrtb->linebuf[y];
   int len = strlen(linebuf);
@@ -98,6 +106,7 @@ void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
     memmove(linebuf[y + 1], linebuf[y + 1] + x, strLength - x);
     linebuf[y + 1][strLength - x] = '\0';
     linebuf[y + 1] = realloc(linebuf[y + 1], strLength - x + 1);
+		ptrtb->linebuf = linebuf;
   }
 }
 
@@ -109,6 +118,20 @@ int textbufDeleteLine(textbuf *ptrtb, unsigned int y){
 	return 1;
 }
 
+int textbufDeleteLineBreak(textbuf *t, unsigned int y){
+	const int lenLower = strlen(t->linebuf[y]);
+	const int lenUpper = strlen(t->linebuf[y-1]);
+	t->linebuf[y-1] = realloc(t->linebuf[y-1], lenLower + lenUpper+1);	
+	memcpy(&(t->linebuf[y-1][lenUpper]), t->linebuf[y], lenLower);
+	t->linebuf[y-1][lenLower+lenUpper] = '\0';
+	free(t->linebuf[y]);
+	memmove(&(t->linebuf[y]), &(t->linebuf[y+1]), (t->size - y - 1) * sizeof(char *));
+	t->linebuf = realloc(t->linebuf, (t->size - 1));
+	t->size--;
+	editorMoveCursor(V.ARROW_UP);
+	editorMoveCursorXTo(lenUpper);
+	return 1;
+}
 
 int keyInit(struct key *K) {
   K->key[0] = 0;

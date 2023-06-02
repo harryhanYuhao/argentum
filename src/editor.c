@@ -11,7 +11,7 @@ extern textbuf TEXTBUF;
 /*** FILE IO ***/
 // Change to open() syscall
 void editorOpen(const char *filename) {
-  FILE *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "ab+");
   if (!fp) {
     char errorMessage[100];
     snprintf(errorMessage, 100, "Can not open File '%s'\r\nperrer message",
@@ -21,6 +21,9 @@ void editorOpen(const char *filename) {
 
   textbufRead(&TEXTBUF, fp); // All lines of the file are read into TEXTBUF
   fclose(fp);
+	if (TEXTBUF.size==0){
+		textbufInitForEmptyFile(&TEXTBUF);
+	}
 }
 
 /*** Input ***/
@@ -99,7 +102,6 @@ int editorProcessKeyPress(void) {
 		return 0;
  	if (c == CTRL_KEY('q')) {
 		clearScreen();
-		editorSaveFile("savedTo.txt");
 		// Quit the program
 		PU.running = 0;
 		}
@@ -134,10 +136,8 @@ int editorProcessKeyPress(void) {
 		if (E.cx+E.offsetx > 0){
 			textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
 			editorMoveCursor(V.ARROW_LEFT);
-		} else {
-			textbufDeleteLine(&TEXTBUF, E.cy+E.offsety);
-			editorMoveCursor(V.ARROW_UP);
-			editorMoveCursorXTo(textbufGetNthLineLength(&TEXTBUF, E.cy+E.offsety));
+		} else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
+			textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
 		}
 	 }
 	 else if (c == 27)

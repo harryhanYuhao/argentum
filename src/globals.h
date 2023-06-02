@@ -29,10 +29,12 @@ int textbufGetNthLineLength(textbuf *, int);
 #include <stdio.h>
 int textbufRead(textbuf *, FILE *);
 
+int textbufInitForEmptyFile(textbuf *);
 void textbufInputChar(textbuf *, char, int, int);
 void textbufDeleteChar(textbuf *, int, int);
 void textbufEnter(textbuf *, unsigned int, unsigned int);
 int textbufDeleteLine(textbuf *, unsigned int);
+int textbufDeleteLineBreak(textbuf *, unsigned int);
 
 struct editorConfig {
   unsigned int cx, cy;     // cursor position. cx horizantol, cy vertical
