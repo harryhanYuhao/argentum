@@ -6,6 +6,7 @@ extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
 extern struct keyValue V;
+extern struct debugUtil DEB;
 extern textbuf TEXTBUF;
 
 /*** FILE IO ***/
@@ -118,8 +119,9 @@ int editorProcessKeyPress(void) {
 		E.cx=0;
 		E.cy++;
 		}
-	else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP)
+	else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP){
 		editorMoveCursor(c);
+	}
 	else if (c == V.PAGE_UP){
 		unsigned int times = E.screenrows;
 		while (times--)
@@ -206,8 +208,10 @@ void editorDrawRows(struct abuf *abptr) {
 			snprintf(buf, buf_size, 
 						"E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
 						E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
-			abAppend(abptr, buf, strlen(buf));	
+			abAppend(DEB.debugString, buf, strlen(buf));
 			free(buf);
+			abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
+			abFree(DEB.debugString);
 		} else {
       if (TEXTBUF.linebuf != NULL) {
         // temp points to the string of the row to be drawn.
@@ -283,7 +287,6 @@ int editorMoveCursorYTo( unsigned int y){
 }
 
 int editorMoveCursor(int key) {
-  PU.updated = 1;
   switch (key) {
   case 1065: // up
 		if (E.cy>0) E.cy--;

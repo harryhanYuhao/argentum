@@ -9,6 +9,7 @@
 #define KILO_VERSION_MINOR 0
 #define KILO_VERSION_PATCH 1
 
+#include "utils.h"
 #include <termios.h>
 typedef struct {
   unsigned int size;
@@ -73,5 +74,13 @@ struct keyValue {
 };
 
 int keyValueInit(struct keyValue *);
+
+struct debugUtil{
+	struct abuf * debugString;
+};
+
+int debugUtilInit(struct debugUtil*);
+// The string must be null terminated 
+int debugAddMessage(struct debugUtil*, const char*); 
 
 #endif // for GLOBALS_H

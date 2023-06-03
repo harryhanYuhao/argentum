@@ -10,12 +10,12 @@ RED=\033[0;31m
 BLUE=\033[0;34m
 NC=\033[0m
 
-all: a.out
+all: argentum
 
-a.out: main.o 
+argentum: main.o 
 	@echo "--------------------------------------------------"
 	@echo -e "$(RED)LINKING$(NC): Producing Executable a.out"
-	@$(CC) $(CFLAGS) main.o utils.o terminal.o globals.o editor.o -o a.out 
+	@$(CC) $(CFLAGS) main.o utils.o terminal.o globals.o editor.o -o argentum
 	@echo "--------------------------------------------------"
 
 main.o: main.c utils.o terminal.o globals.o editor.o
@@ -45,7 +45,7 @@ editor.o: editor.h editor.c globals.o utils.o
 
 # For making test file in ../test directory
 test: all
-	cp ./a.out -t ../test
+	cp ./argentum -t ../test
 
 clean:
 	rm -f utils.o main.o a.out

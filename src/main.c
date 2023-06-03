@@ -9,6 +9,7 @@ extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
 extern struct keyValue V;
+extern struct debugUtil DEB;
 extern textbuf TEXTBUF;
 
 /*** init ***/
@@ -24,6 +25,7 @@ void init(void) {
 	textbufInit(&TEXTBUF);
 	keyInit(&KEY);
 	keyValueInit(&V);
+	debugUtilInit(&DEB);
 
   enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode
 }
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
 				editorProcessKeyPress();
 				keyRefresh(&KEY);
 			}
-      editorRefreshScreen();
+			editorRefreshScreen();
       PU.updated = 0;
     }
   }

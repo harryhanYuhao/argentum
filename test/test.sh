@@ -6,4 +6,6 @@ cd ../src
 make test
 cd ../test
 
-./a.out samplefile.txt
+gcc -o write_file write_file.c
+./write_file
+./argentum samplefile.txt

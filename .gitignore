@@ -10,5 +10,6 @@
 # Ignoring executables
 */*.out
 *.o
+**argentum
 
 *txt

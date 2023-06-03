@@ -48,6 +48,20 @@ Note that the escape sequence is read in 3 parts, the first part is always
 '\x1b', the second part is always '[', and the third part is the actual
 escape sequence.
 
+## DebugPrinting
+
+API for quick debug printing, defined in `global.h`, is:
+
+```c
+//The string must be null terminated 
+int debugAddMessage(struct debugUtil*, const char*); 
+```
+
+The global struct `DEB` is defined in `global.h` as well. 
+
+Example: `debugAddMessage(&DEB, "UP!");`
+
+
 ## utils.h
 
 ### `struct abuf {char *b, int len};` 

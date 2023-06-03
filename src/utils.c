@@ -26,7 +26,11 @@ void abAppend(struct abuf *ab, const char *s, int len) {
   ab->len += len;
 }
 
-void abFree(struct abuf *ab) { free(ab->b); }
+void abFree(struct abuf *ab) { 
+	free(ab->b); 
+	ab->b = NULL;
+	ab->len = 0;
+}
 #endif
 
 // an implementation of getline()

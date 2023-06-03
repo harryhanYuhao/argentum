@@ -1,10 +1,12 @@
 #include "globals.h"
+#include "editor.h"
 #include "utils.h"
 
 struct editorConfig E;
 struct programUtils PU;
 struct key KEY;
 struct keyValue V;
+struct debugUtil DEB;
 textbuf TEXTBUF;
 
 void textbufInit(textbuf *t) {
@@ -164,5 +166,18 @@ int keyValueInit(struct keyValue *kV){
 	kV->DEL_KEY = 1051;
 	kV->END_KEY = 1070;
 	kV->HOME_KEY = 1072;
+	return 1;
+}
+
+int debugUtilInit(struct debugUtil *d){
+	d->debugString = (struct abuf *)malloc(sizeof(struct abuf));
+	d->debugString->len = 0;
+	d->debugString->b = NULL;
+	return 1;
+}
+
+/// The string must be null terminated 
+int debugAddMessage(struct debugUtil *d, const char *string){
+		abAppend(d->debugString, string, strlen(string));
 	return 1;
 }
