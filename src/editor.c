@@ -99,57 +99,108 @@ int editorReadKey(void) {
 
 int editorProcessKeyPress(void) {
 	unsigned int c = KEY.key[0];
-	if ( c == '\0')
-		return 0;
- 	if (c == CTRL_KEY('q')) {
-		clearScreen();
-		// Quit the program
-		PU.running = 0;
-		}
-	else if (c == CTRL_KEY('z')){
-		E.offsety = TEXTBUF.size - E.screenrows;
-		E.cy = 0;
-		}
-	else if (c == CTRL_KEY('x')){
-		E.offsety = 0;
-		E.cy = E.screenrows-1;
-		}
-	else if (c == CTRL_KEY('m')){  // same as <Enter>, 13
-		textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
-		E.cx=0;
-		E.cy++;
-		}
-	else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP){
-		editorMoveCursor(c);
-	}
-	else if (c == V.PAGE_UP){
-		unsigned int times = E.screenrows;
-		while (times--)
-			editorMoveCursor(V.ARROW_UP);
-	}
-	else if (c == V.PAGE_DOWN){
-		unsigned int times = E.screenrows;
-		while (times--)
-			editorMoveCursor(V.ARROW_DOWN);
-	}
-	else if (c == V.HOME_KEY || c == V.END_KEY || c == V.DEL_KEY)
-		;
-	else if (c == 127){ // Backspace
-		if (E.cx+E.offsetx > 0){
-			textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
-			editorMoveCursor(V.ARROW_LEFT);
-		} else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
-			textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
-		}
-	 }
-	 else if (c == 27)
-	 	;
-	 else if (c < 1000){
-	 	// Input
-	 	textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
-	 	editorMoveCursor(V.ARROW_RIGHT);
-	 }
-	return 1;
+	// if ( c == '\0')
+	// 	return 0;
+ // 	if (c == CTRL_KEY('q')) {
+	// 	clearScreen();
+	// 	// Quit the program
+	// 	PU.running = 0;
+	// 	}
+	// else if (c == CTRL_KEY('z')){
+	// 	E.offsety = TEXTBUF.size - E.screenrows;
+	// 	E.cy = 0;
+	// 	}
+	// else if (c == CTRL_KEY('x')){
+	// 	E.offsety = 0;
+	// 	E.cy = E.screenrows-1;
+	// 	}
+	// else if (c == 13){  // same as CTRL_KEY('m')
+	// 	textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
+	// 	E.cx=0;
+	// 	E.cy++;
+	// 	}
+	// else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP){
+	// 	editorMoveCursor(c);
+	// }
+	// else if (c == V.PAGE_UP){
+	// 	unsigned int times = E.screenrows;
+	// 	while (times--)
+	// 		editorMoveCursor(V.ARROW_UP);
+	// }
+	// else if (c == V.PAGE_DOWN){
+	// 	unsigned int times = E.screenrows;
+	// 	while (times--)
+	// 		editorMoveCursor(V.ARROW_DOWN);
+	// }
+	// else if (c == V.HOME_KEY || c == V.END_KEY || c == V.DEL_KEY)
+	// 	;
+	// else if (c == 127){ // Backspace
+	// 	if (E.cx+E.offsetx > 0){
+	// 		textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+	// 		editorMoveCursor(V.ARROW_LEFT);
+	// 	} else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
+	// 		textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
+	// 	}
+	//  }
+	//  else if (c == 27)
+	//  	;
+	//  else if (c < 1000){
+	//  	// Input
+	//  	textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
+	//  	editorMoveCursor(V.ARROW_RIGHT);
+	//  }
+  
+  switch (c){
+    case '\0':
+      break;
+    case CTRL_KEY('q'):
+      clearScreen();
+      PU.running = 0;
+      break;
+    case 13:  // Enter key, or ctrl('m')
+      textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
+      E.cx = 0;
+      E.cy++;
+      break;
+    case ARROW_LEFT:
+    case ARROW_RIGHT:
+    case ARROW_DOWN:
+    case ARROW_UP:
+      editorMoveCursor(c);
+      break;
+    case PAGE_UP:
+      for (unsigned int i = 0; i < E.screenrows; i++)
+        editorMoveCursor(ARROW_UP);
+      break; 
+    case PAGE_DOWN:
+      for (unsigned int i = 0; i < E.screenrows; i++)
+        editorMoveCursor(ARROW_DOWN);
+      break;
+    // WARNING: Unfinished!
+    case DEL_KEY:
+        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+      break;
+    case HOME_KEY:
+    case END_KEY:
+      break;
+    case 127:  // Backspace
+      if (E.cx+E.offsetx > 0){
+        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+        editorMoveCursor(V.ARROW_LEFT);
+      } else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
+        textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
+    }
+    case 27:
+      break;
+    default:
+      // special characters are defined to be greater than 1000
+      if (c < 1000){ 
+        textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
+        editorMoveCursor(V.ARROW_RIGHT);
+      }
+      break;
+  }
+  return 1;
 }
 
 void editorSaveFile(char *ptr){

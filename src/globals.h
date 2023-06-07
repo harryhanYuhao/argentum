@@ -9,12 +9,20 @@
 #define KILO_VERSION_MINOR 0
 #define KILO_VERSION_PATCH 1
 
+enum {
+  ARROW_UP = 1065, 
+  ARROW_DOWN = 1066,
+  ARROW_LEFT = 1067,
+  ARROW_RIGHT = 1068,
+  PAGE_UP = 1053, 
+  PAGE_DOWN = 1054,
+  DEL_KEY = 1051, 
+  END_KEY = 1070, 
+  HOME_KEY = 1072,
+};
+
 #include "utils.h"
 #include <termios.h>
-typedef struct {
-  unsigned int size;
-  char *chars;
-} erow; // editor row
 
 typedef struct {
   // TODO: Change size to numlines

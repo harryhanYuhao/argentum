@@ -10,6 +10,10 @@ Struct defined in `global.h`.
 
 Struct defined in `global.h`: 
 
+#### Struct Functions 
+
+Functions whose named began with `textbuf` manipuate the structure textbuf with side effect, and nothing else.
+
 `typedef struct {int size; char **linebuf;}; textbuf` 
 
 ## `editor.c` 
