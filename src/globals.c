@@ -76,6 +76,8 @@ void textbufInputChar(textbuf *ptrtb, char inputChar, int x, int y) {
   }
 }
 
+// It will delete the x-1 th char in the yth row
+// TODO: Refactor so that it deletes the x th char in the yth row
 void textbufDeleteChar(textbuf *ptrtb, int x, int y) {
   char *linebuf = ptrtb->linebuf[y];
   int len = strlen(linebuf);

@@ -55,39 +55,40 @@ int editorReadKey(void) {
     return '\x1b';
 
   switch (seq[1]) {
-	case '5':
-  if (read(STDIN_FILENO, &seq[2], 1) < 1)
-		return '\x1b';
-	if (seq[2]!='~') {
-		return '\x1b';
-	}
-		KEY.key[0] = V.PAGE_UP;
-		break;
-	case '6':
-  if (read(STDIN_FILENO, &seq[2], 1) < 1)
-		return '\x1b';
-	if (seq[2]!='~') {
-		return '\x1b';
-	}
-		KEY.key[0] = V.PAGE_DOWN;
-		break;
+ // `DELETE`: \x1b[3~
+ // `PAGE_UP`: \x1b[5~
+ // `PAGE_DOWN`: \x1b[6~
+    case '5':
+    case '6':
+    case '3':
+    if (read(STDIN_FILENO, &seq[2], 1) < 1)
+      return '\x1b';
+    else if (seq[2]!='~') 
+      return '\x1b'; 
+    else if (seq[1] == '5')
+      KEY.key[0] = PAGE_UP;
+    else if (seq[1] == '6')
+      KEY.key[0] = PAGE_DOWN;
+    else if (seq[1] == '3')
+      KEY.key[0] = DEL_KEY;
+    break;
   case 'A':
-		KEY.key[0] = V.ARROW_UP;
+		KEY.key[0] = ARROW_UP;
 		break;
   case 'B':
-		KEY.key[0] = V.ARROW_DOWN;
+		KEY.key[0] = ARROW_DOWN;
 		break;
   case 'C':
-		KEY.key[0] = V.ARROW_RIGHT;
+		KEY.key[0] = ARROW_RIGHT;
 		break;
   case 'D':
-		KEY.key[0] = V.ARROW_LEFT;
+		KEY.key[0] = ARROW_LEFT;
 		break;
   case 'H':
-		KEY.key[0] = V.HOME_KEY;
+		KEY.key[0] = HOME_KEY;
 		break;
   case 'F':
-		KEY.key[0] = V.END_KEY;
+		KEY.key[0] = END_KEY;
 		break;
   default:
     return '\x1b';
@@ -176,9 +177,13 @@ int editorProcessKeyPress(void) {
       for (unsigned int i = 0; i < E.screenrows; i++)
         editorMoveCursor(ARROW_DOWN);
       break;
+    case DEL_KEY: 
     // WARNING: Unfinished!
-    case DEL_KEY:
-        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+      {
+      const unsigned int len = strlen(TEXTBUF.linebuf[E.cy+E.offsety]);
+      if (E.cx+E.offsety)
+      textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx+1, E.cy+E.offsety);
+      }
       break;
     case HOME_KEY:
     case END_KEY:
