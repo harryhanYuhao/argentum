@@ -54,10 +54,10 @@ int editorReadKey(void) {
   if (seq[0] != '[')
     return '\x1b';
 
-  switch (seq[1]) {
  // `DELETE`: \x1b[3~
  // `PAGE_UP`: \x1b[5~
  // `PAGE_DOWN`: \x1b[6~
+  switch (seq[1]) {
     case '5':
     case '6':
     case '3':
@@ -65,12 +65,12 @@ int editorReadKey(void) {
       return '\x1b';
     else if (seq[2]!='~') 
       return '\x1b'; 
+    else if (seq[1] == '3')
+      KEY.key[0] = DEL_KEY;
     else if (seq[1] == '5')
       KEY.key[0] = PAGE_UP;
     else if (seq[1] == '6')
       KEY.key[0] = PAGE_DOWN;
-    else if (seq[1] == '3')
-      KEY.key[0] = DEL_KEY;
     break;
   case 'A':
 		KEY.key[0] = ARROW_UP;
@@ -170,21 +170,16 @@ int editorProcessKeyPress(void) {
       editorMoveCursor(c);
       break;
     case PAGE_UP:
-      for (unsigned int i = 0; i < E.screenrows; i++)
-        editorMoveCursor(ARROW_UP);
-      break; 
     case PAGE_DOWN:
       for (unsigned int i = 0; i < E.screenrows; i++)
-        editorMoveCursor(ARROW_DOWN);
+        editorMoveCursor(c);
       break;
-    case DEL_KEY: 
-    // WARNING: Unfinished!
-      {
-      const unsigned int len = strlen(TEXTBUF.linebuf[E.cy+E.offsety]);
-      if (E.cx+E.offsety)
-      textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx+1, E.cy+E.offsety);
+    case DEL_KEY: {
+        const unsigned int len = strlen(TEXTBUF.linebuf[E.cy+E.offsety]);
+        if ((E.cx+E.offsety) < len)
+          textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx+1, E.cy+E.offsety);
+        break;
       }
-      break;
     case HOME_KEY:
     case END_KEY:
       break;
@@ -194,7 +189,7 @@ int editorProcessKeyPress(void) {
         editorMoveCursor(V.ARROW_LEFT);
       } else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
         textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
-    }
+      }
     case 27:
       break;
     default:
@@ -251,6 +246,18 @@ static int appendWelcomeMessage(struct abuf *ptr) {
   return 1;
 }
 
+void screenBufferAppendDebugInformation(struct abuf *abptr){
+  const int buf_size = 100;
+  char *buf = (char*)malloc(buf_size);
+  snprintf(buf, buf_size, 
+           "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
+           E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
+  abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
+  free(buf);
+  abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
+  abFree(DEB.debugString);
+}
+
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
   for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {  // number of iteration is siginificant!
@@ -259,15 +266,7 @@ void editorDrawRows(struct abuf *abptr) {
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     } else if (nrows == E.screenrows-2){ // For debugging purpose
-			const int buf_size = 100;
-			char *buf = (char*)malloc(buf_size);
-			snprintf(buf, buf_size, 
-						"E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
-						E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
-			abAppend(DEB.debugString, buf, strlen(buf));
-			free(buf);
-			abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
-			abFree(DEB.debugString);
+      screenBufferAppendDebugInformation(abptr);
 		} else {
       if (TEXTBUF.linebuf != NULL) {
         // temp points to the string of the row to be drawn.
@@ -342,26 +341,30 @@ int editorMoveCursorYTo( unsigned int y){
 	return 1;
 }
 
+// TODO: Needs improvement: Current function does intermix 
+// TODO: the move cursor function and screen scrolling
 int editorMoveCursor(int key) {
   switch (key) {
-  case 1065: // up
+  case ARROW_UP: 
+  case PAGE_UP:
 		if (E.cy>0) E.cy--;
     else
       editorScrollUp();
     return 0;
-  case 1066:  //down 
+  case ARROW_DOWN:
+  case PAGE_DOWN:
     if (E.cy <  E.screenrows -1)
       E.cy++;
     else
       editorScrollDown();
     return 0;
-  case 1067: //left
+  case ARROW_LEFT: 
     if (E.cx > 0) // padding
       E.cx--;
 		else 
       editorScrollLeft();
     return 0;
-  case 1068: //right
+  case ARROW_RIGHT: 
     if (E.cx < E.screencols - 1)
       E.cx++;
 		else 
