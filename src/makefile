@@ -48,4 +48,4 @@ test: all
 	cp ./argentum -t ../test
 
 clean:
-	rm -f utils.o main.o a.out
+	rm -f editor.o terminal.o utils.o main.o globals.o argentum

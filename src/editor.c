@@ -190,11 +190,14 @@ int editorProcessKeyPress(void) {
       } else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
         textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
       }
-    case 27:
+    case 27:  // escape
       break;
     default:
+      // for now ignore all control-keys
+      if (c < 27) 
+        break;
       // special characters are defined to be greater than 1000
-      if (c < 1000){ 
+      else if (c < 1000){ 
         textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
         editorMoveCursor(V.ARROW_RIGHT);
       }
@@ -214,8 +217,10 @@ void editorSaveFile(char *ptr){
 		die(message);
 	}
 	for (unsigned int i = 0; i < TEXTBUF.size; i++){
-		write(fd, TEXTBUF.linebuf[i], strlen(TEXTBUF.linebuf[i]));
-		write(fd, "\n", 1);
+    if (write(fd, TEXTBUF.linebuf[i], strlen(TEXTBUF.linebuf[i])) == -1)
+      die("Failed to Write to Disk!");
+		if (write(fd, "\n", 1) == -1)
+      die("Failed to Write to Disk!");
 	}
 	close(fd);
 	return;
@@ -250,8 +255,11 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
   const int buf_size = 100;
   char *buf = (char*)malloc(buf_size);
   snprintf(buf, buf_size, 
-           "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
-           E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
+           "E.cx: %d; E.cy: %d; strlen: %d",
+           E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
+  // snprintf(buf, buf_size, 
+  //          "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
+  //          E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -265,9 +273,11 @@ void editorDrawRows(struct abuf *abptr) {
     const unsigned int n_rows_to_draw = nrows + E.offsety;
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
-    } else if (nrows == E.screenrows-2){ // For debugging purpose
+    }
+    else if (nrows == E.screenrows-2){ // For debugging purpose
       screenBufferAppendDebugInformation(abptr);
-		} else {
+		}
+    else {
       if (TEXTBUF.linebuf != NULL) {
         // temp points to the string of the row to be drawn.
         char *temp = *(TEXTBUF.linebuf + n_rows_to_draw);
@@ -310,64 +320,59 @@ void editorRefreshScreen(void) {
   abFree(&ab);
 }
 
-int editorScrollDown(void) {
-  E.offsety++;
-  return 1;
+void editorScrollDown(void) {
+    E.offsety++;
 }
 
-int editorScrollUp(void) {
-	E.offsety--;
-	return 1;
+void editorScrollUp(void) {
+  	E.offsety--;
 }
 
-int editorScrollLeft(void) {
-  if (E.offsetx >= 1)
-    E.offsetx--;
-  return 1;
+void editorScrollLeft(void) {
+  E.offsetx--;
 }
 
-int editorScrollRight(void) {
+void editorScrollRight(void) {
   E.offsetx++;
-  return 1;
 }
 
-int editorMoveCursorXTo(unsigned int x){
+void editorMoveCursorXTo(unsigned int x){
 	E.cx = x;
-	return 1;
 }
 
-int editorMoveCursorYTo( unsigned int y){
+void editorMoveCursorYTo( unsigned int y){
 	E.cy = y;
-	return 1;
 }
 
 // TODO: Needs improvement: Current function does intermix 
 // TODO: the move cursor function and screen scrolling
+// BUG: bug remains
 int editorMoveCursor(int key) {
   switch (key) {
   case ARROW_UP: 
   case PAGE_UP:
-		if (E.cy>0) E.cy--;
-    else
+		if (E.cy>0) 
+        E.cy--;
+    else if (E.offsety > 0)
       editorScrollUp();
     return 0;
   case ARROW_DOWN:
   case PAGE_DOWN:
     if (E.cy <  E.screenrows -1)
       E.cy++;
-    else
+    else if (E.cy + E.offsety < TEXTBUF.size )
       editorScrollDown();
     return 0;
   case ARROW_LEFT: 
-    if (E.cx > 0) // padding
+    if (E.cx > 0) 
       E.cx--;
-		else 
+		else if (E.cx + E.offsetx > 0)
       editorScrollLeft();
     return 0;
   case ARROW_RIGHT: 
-    if (E.cx < E.screencols - 1)
+		if ((E.cx + E.offsetx) < strlen(TEXTBUF.linebuf[E.cy + E.offsety]) ) 
       E.cx++;
-		else 
+    else if (E.cx >= E.screencols - 1)
       editorScrollRight();
     return 0;
   default:

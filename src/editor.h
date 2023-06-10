@@ -13,7 +13,7 @@ void editorInit(void);
 void editorSaveFile(char *);
 void editorOpen(const char *);
 int editorMoveCursor(int);
-int editorMoveCursorXTo(unsigned int);
-int editorMoveCursorYTo(unsigned int);
+void editorMoveCursorXTo(unsigned int);
+void editorMoveCursorYTo(unsigned int);
 
 #endif // For EDITOR_H
