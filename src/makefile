@@ -33,7 +33,7 @@ utils.o: utils.c utils.h
 	@echo -e "$(RED)COMPILING$(NC): $(BLUE)utils.c$(NC)"
 	@$(CC) $(CFLAGS) -c utils.c 
 
-globals.o: globals.h globals.c
+globals.o: globals.h globals.c utils.o
 	@echo "--------------------------------------------------"
 	@echo -e "$(RED)COMPILING$(NC): $(BLUE)globals.c$(NC)"
 	@$(CC) $(CFLAGS) -c globals.c 

@@ -1,6 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H 1
 
+// A function for debug
+void tracker(void);
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -254,12 +254,12 @@ static int appendWelcomeMessage(struct abuf *ptr) {
 void screenBufferAppendDebugInformation(struct abuf *abptr){
   const int buf_size = 100;
   char *buf = (char*)malloc(buf_size);
-  snprintf(buf, buf_size, 
-           "E.cx: %d; E.cy: %d; strlen: %d",
-           E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
   // snprintf(buf, buf_size, 
-  //          "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
-  //          E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
+  //          "E.cx: %d; E.cy: %d; strlen: %ld",
+  //          E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
+  snprintf(buf, buf_size, 
+           "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
+           E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -268,13 +268,13 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
 
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
-  for (unsigned int nrows = 0; nrows < E.screenrows-1; nrows++) {  // number of iteration is siginificant!
+  for (unsigned int nrows = 0; nrows < E.screenrows - 1 ; nrows++) {  // number of iteration is siginificant!
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     }
-    else if (nrows == E.screenrows-2){ // For debugging purpose
+    else if (nrows == E.screenrows-4){ // For debugging purpose
       screenBufferAppendDebugInformation(abptr);
 		}
     else {
@@ -293,9 +293,10 @@ void editorDrawRows(struct abuf *abptr) {
 
         // abAppend(abptr, " ", 1);  // The space before the Line.
         abAppend(abptr, temp, bufferlen);
+        // abAppend(abptr, "\r\n", 2);
       }
     }
-		if (nrows!=E.screencols-2) abAppend(abptr, "\r\n", 2);
+		if (nrows<E.screencols - 1) abAppend(abptr, "\r\n", 2);
   }
 }
 
@@ -311,10 +312,16 @@ void editorRefreshScreen(void) {
   char buf[32];
 	// move cursor, row:cols; top left is 1:1
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1); 
+  // abAppend(&ab, "\x1b[H", 3); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
                                    // strlen is from <string.h>
 
+  // TESTING: 
+  // abAppend(&ab, "\x1b[35;70H", 10); // Go to last line
+  // abAppend(&ab, "\x1b[?25h", 6); // Go to middle of last line
+  
   abAppend(&ab, "\x1b[?25h", 6); // Show cursor
+  // tracker();
   write(STDIN_FILENO, "\x1b[2J\x1b[H", 7);  // erase entire screen
   write(STDIN_FILENO, ab.b, ab.len);
   abFree(&ab);
