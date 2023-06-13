@@ -30,22 +30,21 @@ void die(const char *s) {
 // My own implementation of strnlen_s()
 // return the number of the byte pointed to by s, excluding '\0' but 
 // at most len
-static size_t strnlen_s(const char *s, size_t maxlen){
+size_t strnlen_s(const char *s, size_t maxlen){
   size_t res;
-  for (res = 1; *(s+res+1)!='\0' && res <= maxlen; res++ );
-  return res-1;
+  for (res = 1; *(s+res)!='\0' && res <= maxlen; res++ );
+  return res;
 }
 #endif
 
 #ifdef ABUF_INIT
 void abAppend(struct abuf *ab, const char *s, int len) {
-  int actualLen = strnlen_s(s, len);
-  char *new = realloc(ab->b, actualLen + ab->len);
+  char *new = realloc(ab->b, len + ab->len);
   if (new == NULL)
     die("Fail to realloc memory for function abAppend");
   memcpy(&new[ab->len], s, len); // From <string.h>
   ab->b = new;
-  ab->len += actualLen;
+  ab->len += len;
 }
 
 void abFree(struct abuf *ab) { 

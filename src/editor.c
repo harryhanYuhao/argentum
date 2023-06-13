@@ -268,7 +268,7 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
 
 /*** Output ***/
 void editorDrawRows(struct abuf *abptr) {
-  for (unsigned int nrows = 0; nrows < E.screenrows - 1 ; nrows++) {  // number of iteration is siginificant!
+  for (unsigned int nrows = 0; nrows < E.screenrows ; nrows++) {  // number of iteration is siginificant!
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
     if (n_rows_to_draw >= TEXTBUF.size) {
@@ -289,14 +289,14 @@ void editorDrawRows(struct abuf *abptr) {
 
         // Calculate the correct display length of the buffer
         unsigned int bufferlen = stringlen - xoffset; // same as strlen(temp)
-        bufferlen = (bufferlen >= E.screencols) ? E.screencols - 1 : bufferlen;
+        bufferlen = (bufferlen >= E.screencols) ? E.screencols : bufferlen;
 
         // abAppend(abptr, " ", 1);  // The space before the Line.
         abAppend(abptr, temp, bufferlen);
         // abAppend(abptr, "\r\n", 2);
       }
     }
-		if (nrows<E.screencols - 1) abAppend(abptr, "\r\n", 2);
+		if (nrows<E.screenrows - 1) abAppend(abptr, "\r\n", 2);
   }
 }
 

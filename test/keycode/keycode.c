@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
         snprintf(ctemp, 2, "%c", temp);
       }
       printf("Code: %d (\'%s\')\r\n", temp, ctemp);
+      if (temp == 13) printf("\n");
     }
   }
   return 0;

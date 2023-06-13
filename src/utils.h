@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H 1
 
-// A function for debug
+// For debug
 void tracker(void);
 
 #include <stdio.h>
@@ -28,6 +28,18 @@ void clearScreen(void);
 
 #include <errno.h>
 void die(const char *);
+
+
+#ifndef _POSIX_C_SOURCE 
+#define _POSIX_C_SOURCE 0
+#endif
+
+#if !_POSIX_C_SOURCE >= 200809L || ! defined _GNU_SOURCE 
+// My own implementation of strnlen_s()
+// return the number of the byte pointed to by s, excluding '\0' but 
+// at most len
+size_t strnlen_s(const char *s, size_t maxlen);
+#endif
 
 // an implementation of getline()
 // getline() is included in 
