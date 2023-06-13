@@ -19,6 +19,7 @@ void init(void) {
   E.offsety = 0;
   E.offsetx = 0;
 	E.mode = 1; // 1 insert mode
+  E.leftMarginSize = 3;
   getWindowSize(&E.screenrows, &E.screencols); // from "terminal.h"
 	
 	programUtilsInit(&PU);
@@ -35,18 +36,21 @@ int main(int argc, char *argv[]) {
   if (argc > 1) {
     editorOpen(argv[1]);
   } 
-	if (argc <= 1) {
-		editorOpen("aaa.txt");
-	}
+  if (argc <= 1) {
+    editorOpen("aaa.txt");
+  }
+  editorSetMarginSize(&E, &TEXTBUF);
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
-		if (editorReadKey() == -1)
-			die("editorReadKey Failed");
+    if (editorReadKey() == -1)
+      die("editorReadKey Failed");
     if (PU.updated) {
-			if (KEY.key[0]){
-				editorProcessKeyPress();
-				keyRefresh(&KEY);
-			}
-			editorRefreshScreen();
+      if (KEY.key[0]){
+        // Incase the margine size changes
+        editorSetMarginSize(&E, &TEXTBUF);
+        editorProcessKeyPress();
+        keyRefresh(&KEY);
+      }
+      editorRefreshScreen();
       PU.updated = 0;
     }
   }

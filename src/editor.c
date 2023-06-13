@@ -271,6 +271,41 @@ void editorDrawRows(struct abuf *abptr) {
   for (unsigned int nrows = 0; nrows < E.screenrows ; nrows++) {  // number of iteration is siginificant!
     // the line number of the row to be drawn
     const unsigned int n_rows_to_draw = nrows + E.offsety;
+
+    // Create left margin (line number)
+    char *leftMargin = (char *)calloc(E.leftMarginSize, 1);
+    int lineNumber;
+    if (nrows ==  E.cy){
+      lineNumber = E.offsety + E.cy;
+      snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
+      // As in vim, the line number in the current line is aliged to right
+      // Create necessary paddings
+      if (strlen(leftMargin)<E.leftMarginSize){
+        // recall E.leftMarginSize is seted to 1 more than the maximum 
+        // line number to include the extra space
+        for (size_t i = 0; i < E.leftMarginSize-strlen(leftMargin)-1; i++){
+          abAppend(abptr, " ", 1);
+        }
+      }
+      abAppend(abptr, "\x1b[1m", 4);
+      abAppend(abptr, leftMargin, strlen(leftMargin));
+      abAppend(abptr, "\x1b[0m", 4);
+      // the extra space
+      abAppend(abptr, " ", 1);
+    } else {
+      int temp;
+      lineNumber = (temp = (nrows - E.cy)) > 0 ? temp : -temp; 
+      snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
+      abAppend(abptr, leftMargin, strlen(leftMargin));
+      // Create necessary paddings
+      // recall E.leftMarginSize is seted to 1 more than the maximum 
+      for (size_t i = 0; i < E.leftMarginSize-strlen(leftMargin)-1; i++){
+        abAppend(abptr, " ", 1);
+      }
+      // The extra space 
+      abAppend(abptr, " ", 1);
+    }
+
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     }
@@ -289,7 +324,8 @@ void editorDrawRows(struct abuf *abptr) {
 
         // Calculate the correct display length of the buffer
         unsigned int bufferlen = stringlen - xoffset; // same as strlen(temp)
-        bufferlen = (bufferlen >= E.screencols) ? E.screencols : bufferlen;
+        bufferlen = (bufferlen >= E.screencols - E.leftMarginSize) ? 
+          E.screencols - E.leftMarginSize : bufferlen;
 
         // abAppend(abptr, " ", 1);  // The space before the Line.
         abAppend(abptr, temp, bufferlen);
@@ -311,7 +347,7 @@ void editorRefreshScreen(void) {
   // Move mouse to correct position
   char buf[32];
 	// move cursor, row:cols; top left is 1:1
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1); 
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + E.leftMarginSize  + 1); 
   // abAppend(&ab, "\x1b[H", 3); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
                                    // strlen is from <string.h>
@@ -386,4 +422,15 @@ int editorMoveCursor(int key) {
     return -1;
   }
   return -1;
+}
+
+// Set editorConfig according to number of lines stored in textbuf
+void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
+  int line = ptrtb->size; 
+  int counter;
+  // Find out the digits of greatest linenumber
+  for (counter = 0; line>0; line /= 10, counter ++);
+  // One more space for padding ' '
+  ptr->leftMarginSize = counter + 1;
+  return;
 }

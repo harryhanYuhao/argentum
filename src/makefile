@@ -43,6 +43,9 @@ editor.o: editor.h editor.c globals.o utils.o
 	@echo -e "$(RED)COMPILING$(NC): $(BLUE)editor.c$(NC)"
 	@$(CC) $(CFLAGS) -c editor.c 
 
+install: argentum 
+	cp argentum -t ~/psu/bin
+
 # For making test file in ../test directory
 test: all
 	cp ./argentum -t ../test

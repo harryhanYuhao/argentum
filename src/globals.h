@@ -52,6 +52,7 @@ struct editorConfig {
   unsigned int offsetx;    // Display offset, x direction
   unsigned int offsety;
   unsigned int mode; // Indicator for mode
+  unsigned int leftMarginSize;
   struct termios orig_termios;
 };
 

@@ -28,11 +28,11 @@ void die(const char *s) {
 
 #if !_POSIX_C_SOURCE >= 200809L || ! defined _GNU_SOURCE 
 // My own implementation of strnlen_s()
-// return the number of the byte pointed to by s, excluding '\0' but 
-// at most len
+// return the number of the byte pointed to by s, excluding '\0'
+// but at most len
 size_t strnlen_s(const char *s, size_t maxlen){
   size_t res;
-  for (res = 1; *(s+res)!='\0' && res <= maxlen; res++ );
+  for (res = 0; *(s+res)!='\0' && res <= maxlen; res++);
   return res;
 }
 #endif
