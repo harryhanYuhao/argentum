@@ -309,28 +309,23 @@ void editorDrawRows(struct abuf *abptr) {
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     }
-    else if (nrows == E.screenrows-4){ // For debugging purpose
+    else if (nrows == E.screenrows-1){ // For debugging purpose
       screenBufferAppendDebugInformation(abptr);
 		}
     else {
-      if (TEXTBUF.linebuf != NULL) {
-        // temp points to the string of the row to be drawn.
-        char *temp = *(TEXTBUF.linebuf + n_rows_to_draw);
-        const unsigned int stringlen = strlen(temp);
-
-        // For calculate the spaces for direction scrolling.
-        const unsigned int xoffset = E.offsetx >= stringlen ? stringlen : E.offsetx;
-        temp += xoffset;
-
-        // Calculate the correct display length of the buffer
-        unsigned int bufferlen = stringlen - xoffset; // same as strlen(temp)
-        bufferlen = (bufferlen >= E.screencols - E.leftMarginSize) ? 
-          E.screencols - E.leftMarginSize : bufferlen;
-
-        // abAppend(abptr, " ", 1);  // The space before the Line.
-        abAppend(abptr, temp, bufferlen);
-        // abAppend(abptr, "\r\n", 2);
-      }
+      if (TEXTBUF.linebuf == NULL) return; 
+      // temp points to the string of the row to be drawn.
+      char *temp = *(TEXTBUF.linebuf + n_rows_to_draw);
+      const unsigned int stringlen = strlen(temp);
+      // For calculate the spaces for direction scrolling.
+      const unsigned int xoffset = E.offsetx >= stringlen ? stringlen : E.offsetx;
+      temp += xoffset;
+      // Calculate the correct display length of the buffer
+      unsigned int bufferlen = stringlen - xoffset; // same as strlen(temp)
+      bufferlen = (bufferlen >= E.screencols - E.leftMarginSize) ? 
+        E.screencols - E.leftMarginSize : bufferlen;
+      // abAppend(abptr, " ", 1);  // The space before the Line.
+      abAppend(abptr, temp, bufferlen);
     }
 		if (nrows<E.screenrows - 1) abAppend(abptr, "\r\n", 2);
   }
@@ -350,14 +345,8 @@ void editorRefreshScreen(void) {
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + E.leftMarginSize  + 1); 
   // abAppend(&ab, "\x1b[H", 3); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
-                                   // strlen is from <string.h>
 
-  // TESTING: 
-  // abAppend(&ab, "\x1b[35;70H", 10); // Go to last line
-  // abAppend(&ab, "\x1b[?25h", 6); // Go to middle of last line
-  
   abAppend(&ab, "\x1b[?25h", 6); // Show cursor
-  // tracker();
   write(STDIN_FILENO, "\x1b[2J\x1b[H", 7);  // erase entire screen
   write(STDIN_FILENO, ab.b, ab.len);
   abFree(&ab);
@@ -424,13 +413,16 @@ int editorMoveCursor(int key) {
   return -1;
 }
 
-// Set editorConfig according to number of lines stored in textbuf
+// Set editorConfig.leftMarginSize according to number of lines stored in textbuf
+// The minimum size of leftMarginSize is 4
 void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
-  int line = ptrtb->size; 
+  int NumberOflines = ptrtb->size; 
   int counter;
   // Find out the digits of greatest linenumber
-  for (counter = 0; line>0; line /= 10, counter ++);
+  for (counter = 0; NumberOflines>0; NumberOflines /= 10, counter ++);
   // One more space for padding ' '
-  ptr->leftMarginSize = counter + 1;
+  counter++;
+  counter >= 4 ? (counter = counter) : (counter = 4);
+  ptr->leftMarginSize = counter;
   return;
 }

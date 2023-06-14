@@ -179,7 +179,8 @@ int debugUtilInit(struct debugUtil *d){
 }
 
 /// The string must be null terminated 
+// replace strlen if possible
 int debugAddMessage(struct debugUtil *d, const char *string){
-		abAppend(d->debugString, string, strlen(string));
+		abAppend(d->debugString, string, strnlen_s(string, 256));
 	return 1;
 }
