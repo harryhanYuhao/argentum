@@ -177,7 +177,7 @@ int editorProcessKeyPress(void) {
     case DEL_KEY: {
         const unsigned int len = strlen(TEXTBUF.linebuf[E.cy+E.offsety]);
         if ((E.cx+E.offsety) < len)
-          textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx+1, E.cy+E.offsety);
+          textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
         break;
       }
     case HOME_KEY:
@@ -185,7 +185,7 @@ int editorProcessKeyPress(void) {
       break;
     case 127:  // Backspace
       if (E.cx+E.offsetx > 0){
-        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx - 1, E.cy+E.offsety);
         editorMoveCursor(V.ARROW_LEFT);
       } else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
         textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
@@ -280,7 +280,7 @@ void editorDrawRows(struct abuf *abptr) {
       snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
       // As in vim, the line number in the current line is aliged to right
       // Create necessary paddings
-      if (strlen(leftMargin)<E.leftMarginSize){
+      if (strnlen_s(leftMargin, 256)<E.leftMarginSize){
         // recall E.leftMarginSize is seted to 1 more than the maximum 
         // line number to include the extra space
         for (size_t i = 0; i < E.leftMarginSize-strlen(leftMargin)-1; i++){
@@ -295,7 +295,12 @@ void editorDrawRows(struct abuf *abptr) {
     } else {
       int temp;
       lineNumber = (temp = (nrows - E.cy)) > 0 ? temp : -temp; 
-      snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
+      // Only display relative number for lines displayed by textbuf
+      if ((nrows+ E.offsety) < TEXTBUF.size){
+        snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
+      } else {
+        snprintf(leftMargin, E.leftMarginSize, "~");
+      }
       abAppend(abptr, leftMargin, strlen(leftMargin));
       // Create necessary paddings
       // recall E.leftMarginSize is seted to 1 more than the maximum 
@@ -390,9 +395,9 @@ int editorMoveCursor(int key) {
     return 0;
   case ARROW_DOWN:
   case PAGE_DOWN:
-    if (E.cy <  E.screenrows -1)
+    if ((E.cy <  E.screenrows -1)&&(E.cy+E.offsety < TEXTBUF.size - 1))
       E.cy++;
-    else if (E.cy + E.offsety < TEXTBUF.size )
+    else if (E.cy + E.offsety < TEXTBUF.size - 1)
       editorScrollDown();
     return 0;
   case ARROW_LEFT: 
@@ -422,7 +427,7 @@ void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
   for (counter = 0; NumberOflines>0; NumberOflines /= 10, counter ++);
   // One more space for padding ' '
   counter++;
-  counter >= 4 ? (counter = counter) : (counter = 4);
+  counter = (counter >= 4) ? counter : 4;
   ptr->leftMarginSize = counter;
   return;
 }

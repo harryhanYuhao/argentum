@@ -76,16 +76,16 @@ void textbufInputChar(textbuf *ptrtb, char inputChar, int x, int y) {
   }
 }
 
-// It will delete the x-1 th char in the yth row
-// TODO: Refactor so that it deletes the x th char in the yth row
+// it deletes the x th char in the yth row
+// Counting from 0th
 void textbufDeleteChar(textbuf *ptrtb, int x, int y) {
   char *linebuf = ptrtb->linebuf[y];
-  int len = strlen(linebuf);
+  int len = strnlen_s(linebuf, 1024);
   // the left padding length shall be included
   // needs to take account of the null Character
-  if (x <= len + 1 && x > 0) {
+  if (x < len && x >= 0) {
     linebuf = realloc(linebuf, len + 2); // extra space for null terminator
-    memmove(&linebuf[x - 1], &linebuf[x], (len - x + 1) * sizeof(char));
+    memmove(&linebuf[x], &linebuf[x + 1], (len - x) * sizeof(char));
     linebuf = realloc(linebuf, len); // extra space for null terminator
     ptrtb->linebuf[y] = linebuf;
   }
