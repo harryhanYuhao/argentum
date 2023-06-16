@@ -17,4 +17,11 @@ void editorMoveCursorXTo(unsigned int);
 void editorMoveCursorYTo(unsigned int);
 void editorSetMarginSize(struct editorConfig *, textbuf *);
 
+void editorScrollDown(void);
+
+int editorGetCursorScreenX(void);
+int editorGetCursorScreenY(void);
+
+int editorGetCursorTextbufX(void);
+int editorGetCursorTextbufY(void);
 #endif // For EDITOR_H

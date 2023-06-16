@@ -161,7 +161,11 @@ int editorProcessKeyPress(void) {
     case 13:  // Enter key, or ctrl('m')
       textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
       E.cx = 0;
-      E.cy++;
+      // Scroll down when enter is used in last line of the screen
+      if (E.cy < E.screenrows - 1)
+        E.cy++;
+      else 
+        editorScrollDown();
       break;
     case ARROW_LEFT:
     case ARROW_RIGHT:
@@ -314,9 +318,9 @@ void editorDrawRows(struct abuf *abptr) {
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     }
-    else if (nrows == E.screenrows-1){ // For debugging purpose
-      screenBufferAppendDebugInformation(abptr);
-		}
+  //   else if (nrows == E.screenrows-1){ // For debugging purpose
+  //     screenBufferAppendDebugInformation(abptr);
+		// }
     else {
       if (TEXTBUF.linebuf == NULL) return; 
       // temp points to the string of the row to be drawn.
@@ -431,3 +435,15 @@ void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
   ptr->leftMarginSize = counter;
   return;
 }
+
+
+int editorGetCursorScreenX(void){
+  return E.cx;
+}
+
+int editorGetCursorScreenY(void){
+  return E.cy;
+}
+
+int editorGetCursorTextbufX(void);
+int editorGetCursorTextbufY(void);

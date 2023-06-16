@@ -48,3 +48,10 @@ Tomorrow delete line function shall be added and the editor would adequately per
 Delete line function successfully implemented and integrated with the backspace.
 
 Create function `textbufDeleteLine` and `textbufDeleteLineBreak`, the former simply deletes the line while the latter deletes the line the append the rest of the line (if there is) to the previous line (just as a backspace used at the beginning of the line in a normal editor).
+
+# June 3 - 15
+
+
+# June 16 
+
+Started to implement the global variable for cursor screen position and cursor textbuf position

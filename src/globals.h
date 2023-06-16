@@ -28,6 +28,7 @@ typedef struct {
   // TODO: Change size to numlines
   unsigned int size; // Total number of lines
   char **linebuf;    // A pointer storing pointer to line buffer
+  int *lineLength;  // lineLength[n] = strlen(linebuf[n])
 } textbuf;           // textbuffer holding all lines.
 
 

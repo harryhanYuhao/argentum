@@ -1,5 +1,21 @@
 # Development Documentation
 
+## OverView Of Implementation
+
+### Text Storage
+
+All texts are stored in buffer `struct textbuf TEXTBUF`. Many buffer may exists at the same time.
+
+### Screen-Cursor-Buffer Interaction
+
+Screen will show the approipriate portion of the buffer with auxillary informations; pressing key will modify the buffer accordingly, orchange the way how the textbuffer is presented on screen. 
+
+The cursor position is the position of the cursor on screen; with the upper left corner being 1,1. The x, y position of the cursor are stored in the global variable `E.cx`, `E.cy`.
+
+## Screen-Curosr-Text Interaction
+
+
+
 ## Globle Variables
 
 ### `extern struct editorConfig E`
