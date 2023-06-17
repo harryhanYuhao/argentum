@@ -445,5 +445,10 @@ int editorGetCursorScreenY(void){
   return E.cy;
 }
 
-int editorGetCursorTextbufX(void);
-int editorGetCursorTextbufY(void);
+int editorGetCursorTextbufX(void){
+  return E.cx + E.leftMarginSize;
+}
+
+int editorGetCursorTextbufY(void){
+  return E.cy;
+}
