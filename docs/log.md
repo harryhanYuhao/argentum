@@ -55,3 +55,7 @@ Create function `textbufDeleteLine` and `textbufDeleteLineBreak`, the former sim
 # June 16 
 
 Started to implement the global variable for cursor screen position and cursor textbuf position
+
+# June 18
+
+Continue to refactor global variable for cursor screen position and cursor textbuf position

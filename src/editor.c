@@ -100,57 +100,8 @@ int editorReadKey(void) {
 
 int editorProcessKeyPress(void) {
 	unsigned int c = KEY.key[0];
-	// if ( c == '\0')
-	// 	return 0;
- // 	if (c == CTRL_KEY('q')) {
-	// 	clearScreen();
-	// 	// Quit the program
-	// 	PU.running = 0;
-	// 	}
-	// else if (c == CTRL_KEY('z')){
-	// 	E.offsety = TEXTBUF.size - E.screenrows;
-	// 	E.cy = 0;
-	// 	}
-	// else if (c == CTRL_KEY('x')){
-	// 	E.offsety = 0;
-	// 	E.cy = E.screenrows-1;
-	// 	}
-	// else if (c == 13){  // same as CTRL_KEY('m')
-	// 	textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
-	// 	E.cx=0;
-	// 	E.cy++;
-	// 	}
-	// else if (c == V.ARROW_LEFT || c == V.ARROW_RIGHT || c == V.ARROW_DOWN || c == V.ARROW_UP){
-	// 	editorMoveCursor(c);
-	// }
-	// else if (c == V.PAGE_UP){
-	// 	unsigned int times = E.screenrows;
-	// 	while (times--)
-	// 		editorMoveCursor(V.ARROW_UP);
-	// }
-	// else if (c == V.PAGE_DOWN){
-	// 	unsigned int times = E.screenrows;
-	// 	while (times--)
-	// 		editorMoveCursor(V.ARROW_DOWN);
-	// }
-	// else if (c == V.HOME_KEY || c == V.END_KEY || c == V.DEL_KEY)
-	// 	;
-	// else if (c == 127){ // Backspace
-	// 	if (E.cx+E.offsetx > 0){
-	// 		textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
-	// 		editorMoveCursor(V.ARROW_LEFT);
-	// 	} else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
-	// 		textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
-	// 	}
-	//  }
-	//  else if (c == 27)
-	//  	;
-	//  else if (c < 1000){
-	//  	// Input
-	//  	textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
-	//  	editorMoveCursor(V.ARROW_RIGHT);
-	//  }
-  
+  int textbufXPos = editorGetCursorTextbufX();
+  int textbufYPos = editorGetCursorTextbufY();
   switch (c){
     case '\0':
       break;
@@ -159,7 +110,7 @@ int editorProcessKeyPress(void) {
       PU.running = 0;
       break;
     case 13:  // Enter key, or ctrl('m')
-      textbufEnter(&TEXTBUF, E.cx + E.offsetx, E.cy+E.offsety);
+      textbufEnter(&TEXTBUF, textbufXPos, textbufYPos);
       E.cx = 0;
       // Scroll down when enter is used in last line of the screen
       if (E.cy < E.screenrows - 1)
@@ -179,20 +130,20 @@ int editorProcessKeyPress(void) {
         editorMoveCursor(c);
       break;
     case DEL_KEY: {
-        const unsigned int len = strlen(TEXTBUF.linebuf[E.cy+E.offsety]);
-        if ((E.cx+E.offsety) < len)
-          textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx, E.cy+E.offsety);
+        const unsigned int len = strlen(TEXTBUF.linebuf[textbufYPos]);
+        if ((textbufXPos) < len)
+          textbufDeleteChar(&TEXTBUF, textbufXPos, textbufYPos);
         break;
       }
     case HOME_KEY:
     case END_KEY:
       break;
     case 127:  // Backspace
-      if (E.cx+E.offsetx > 0){
-        textbufDeleteChar(&TEXTBUF, E.cx+E.offsetx - 1, E.cy+E.offsety);
+      if (textbufXPos > 0){
+        textbufDeleteChar(&TEXTBUF, textbufXPos - 1, textbufYPos);
         editorMoveCursor(V.ARROW_LEFT);
-      } else if (E.cy + E.offsety > 0 && E.cx+E.offsetx<TEXTBUF.size){
-        textbufDeleteLineBreak(&TEXTBUF, E.cy+E.offsety);
+      } else if (textbufYPos > 0 && textbufXPos<TEXTBUF.size){
+        textbufDeleteLineBreak(&TEXTBUF, textbufYPos);
       }
     case 27:  // escape
       break;
@@ -202,7 +153,7 @@ int editorProcessKeyPress(void) {
         break;
       // special characters are defined to be greater than 1000
       else if (c < 1000){ 
-        textbufInputChar(&TEXTBUF, c, E.cx+E.offsetx, E.cy+E.offsety);
+        textbufInputChar(&TEXTBUF, c, textbufXPos, textbufYPos);
         editorMoveCursor(V.ARROW_RIGHT);
       }
       break;
@@ -262,8 +213,8 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
   //          "E.cx: %d; E.cy: %d; strlen: %ld",
   //          E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
   snprintf(buf, buf_size, 
-           "E.cx: %d; E.cy: %d; E.offsetx: %d; E.offsety: %d; rows: %d; cols: %d",
-           E.cx, E.cy, E.offsetx, E.offsety, E.screenrows, E.screencols);
+           "E.cx: %d; E.cy: %d; TexbufX: %d; TexbufY: %d; rows: %d; cols: %d",
+           E.cx, E.cy, editorGetCursorTextbufX(), editorGetCursorTextbufY(), E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -318,9 +269,9 @@ void editorDrawRows(struct abuf *abptr) {
     if (n_rows_to_draw >= TEXTBUF.size) {
       // abAppend(abptr, "~", 1);
     }
-  //   else if (nrows == E.screenrows-1){ // For debugging purpose
-  //     screenBufferAppendDebugInformation(abptr);
-		// }
+    else if (nrows == E.screenrows-1){ // For debugging purpose
+      screenBufferAppendDebugInformation(abptr);
+		}
     else {
       if (TEXTBUF.linebuf == NULL) return; 
       // temp points to the string of the row to be drawn.
@@ -351,7 +302,8 @@ void editorRefreshScreen(void) {
   // Move mouse to correct position
   char buf[32];
 	// move cursor, row:cols; top left is 1:1
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + E.leftMarginSize  + 1); 
+  // TODO: E.leftMarginSize
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1); 
   // abAppend(&ab, "\x1b[H", 3); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
 
@@ -388,6 +340,7 @@ void editorMoveCursorYTo( unsigned int y){
 // TODO: Needs improvement: Current function does intermix 
 // TODO: the move cursor function and screen scrolling
 // BUG: bug remains
+// TODO: E refactor
 int editorMoveCursor(int key) {
   switch (key) {
   case ARROW_UP: 
@@ -405,16 +358,16 @@ int editorMoveCursor(int key) {
       editorScrollDown();
     return 0;
   case ARROW_LEFT: 
-    if (E.cx > 0) 
+    // if (E.cx > 0) 
       E.cx--;
-		else if (E.cx + E.offsetx > 0)
-      editorScrollLeft();
+		// else if (E.cx + E.offsetx > 0)
+  //     editorScrollLeft();
     return 0;
   case ARROW_RIGHT: 
-		if ((E.cx + E.offsetx) < strlen(TEXTBUF.linebuf[E.cy + E.offsety]) ) 
+		// if ((E.cx + E.offsetx) < strlen(TEXTBUF.linebuf[E.cy + E.offsety]) ) 
       E.cx++;
-    else if (E.cx >= E.screencols - 1)
-      editorScrollRight();
+    // else if (E.cx >= E.screencols - 1)
+    //   editorScrollRight();
     return 0;
   default:
     return -1;
@@ -446,9 +399,9 @@ int editorGetCursorScreenY(void){
 }
 
 int editorGetCursorTextbufX(void){
-  return E.cx + E.leftMarginSize;
+  return E.cx - E.leftMarginSize + E.offsetx;
 }
 
 int editorGetCursorTextbufY(void){
-  return E.cy;
+  return E.cy + E.offsety;
 }

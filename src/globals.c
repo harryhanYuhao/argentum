@@ -133,7 +133,8 @@ int textbufDeleteLineBreak(textbuf *t, unsigned int y){
 	t->linebuf = realloc(t->linebuf, (t->size - 1));
 	t->size--;
 	editorMoveCursor(V.ARROW_UP);
-	editorMoveCursorXTo(lenUpper);
+  // WARNING: CURSOR/TEXTBUF COORDINATE 
+	editorMoveCursorXTo(lenUpper + E.leftMarginSize);
 	return 1;
 }
 

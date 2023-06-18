@@ -39,7 +39,9 @@ int main(int argc, char *argv[]) {
   if (argc <= 1) {
     editorOpen("aaa.txt");
   }
+  // Margin Size depends on the textbuffer read.
   editorSetMarginSize(&E, &TEXTBUF);
+  E.cx = E.leftMarginSize;
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
     if (editorReadKey() == -1)
       die("editorReadKey Failed");
