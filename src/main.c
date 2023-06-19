@@ -8,7 +8,6 @@
 extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
-extern struct keyValue V;
 extern struct debugUtil DEB;
 extern textbuf TEXTBUF;
 
@@ -25,7 +24,6 @@ void init(void) {
 	programUtilsInit(&PU);
 	textbufInit(&TEXTBUF);
 	keyInit(&KEY);
-	keyValueInit(&V);
 	debugUtilInit(&DEB);
 
   enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode

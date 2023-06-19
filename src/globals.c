@@ -5,7 +5,6 @@
 struct editorConfig E;
 struct programUtils PU;
 struct key KEY;
-struct keyValue V;
 struct debugUtil DEB;
 textbuf TEXTBUF;
 
@@ -132,7 +131,7 @@ int textbufDeleteLineBreak(textbuf *t, unsigned int y){
 	memmove(&(t->linebuf[y]), &(t->linebuf[y+1]), (t->size - y - 1) * sizeof(char *));
 	t->linebuf = realloc(t->linebuf, (t->size - 1));
 	t->size--;
-	editorMoveCursor(V.ARROW_UP);
+	editorMoveCursor(ARROW_UP);
   // WARNING: CURSOR/TEXTBUF COORDINATE 
 	editorMoveCursorXTo(lenUpper + E.leftMarginSize);
 	return 1;
@@ -158,19 +157,6 @@ void programUtilsInit(struct programUtils *p) {
   p->updated = 1;
 }
 
-
-int keyValueInit(struct keyValue *kV){
-	kV->ARROW_UP = 1065;
-	kV->ARROW_DOWN = 1066;
-	kV->ARROW_LEFT = 1067;
-	kV->ARROW_RIGHT = 1068;
-	kV->PAGE_UP = 1053;
-	kV->PAGE_DOWN = 1054;
-	kV->DEL_KEY = 1051;
-	kV->END_KEY = 1070;
-	kV->HOME_KEY = 1072;
-	return 1;
-}
 
 int debugUtilInit(struct debugUtil *d){
 	d->debugString = (struct abuf *)malloc(sizeof(struct abuf));

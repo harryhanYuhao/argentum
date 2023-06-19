@@ -76,15 +76,6 @@ struct key {
 int keyInit(struct key *);
 int keyRefresh(struct key *);
 
-// It is merely a struct for holding global key values
-struct keyValue {
-  unsigned int ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT;
-  unsigned int PAGE_UP, PAGE_DOWN;
-  unsigned int DEL_KEY, END_KEY, HOME_KEY;
-};
-
-int keyValueInit(struct keyValue *);
-
 struct debugUtil{
 	struct abuf * debugString;
 };

@@ -5,7 +5,6 @@
 extern struct editorConfig E;
 extern struct programUtils PU;
 extern struct key KEY;
-extern struct keyValue V;
 extern struct debugUtil DEB;
 extern textbuf TEXTBUF;
 
@@ -141,7 +140,7 @@ int editorProcessKeyPress(void) {
     case 127:  // Backspace
       if (textbufXPos > 0){
         textbufDeleteChar(&TEXTBUF, textbufXPos - 1, textbufYPos);
-        editorMoveCursor(V.ARROW_LEFT);
+        editorMoveCursor(ARROW_LEFT);
       } else if (textbufYPos > 0 && textbufXPos<TEXTBUF.size){
         textbufDeleteLineBreak(&TEXTBUF, textbufYPos);
       }
@@ -154,7 +153,7 @@ int editorProcessKeyPress(void) {
       // special characters are defined to be greater than 1000
       else if (c < 1000){ 
         textbufInputChar(&TEXTBUF, c, textbufXPos, textbufYPos);
-        editorMoveCursor(V.ARROW_RIGHT);
+        editorMoveCursor(ARROW_RIGHT);
       }
       break;
   }
