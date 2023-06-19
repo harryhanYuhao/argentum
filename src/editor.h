@@ -19,9 +19,9 @@ void editorSetMarginSize(struct editorConfig *, textbuf *);
 
 void editorScrollDown(void);
 
-int editorGetCursorScreenX(void);
-int editorGetCursorScreenY(void);
+int editorGetCursorScreenPosX(void);
+int editorGetCursorScreenPosY(void);
 
-int editorGetCursorTextbufX(void);
-int editorGetCursorTextbufY(void);
+int editorGetCursorTextbufPosX(void);
+int editorGetCursorTextbufPosY(void);
 #endif // For EDITOR_H

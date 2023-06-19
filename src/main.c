@@ -31,7 +31,8 @@ void init(void) {
   enableRAWMode(); // from "terminal.h"; enable Terminal RAW mode
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[], char *envp[]) {
+  // TODO: Refactor Initialisation and reading file
   init();
   if (argc > 1) {
     editorOpen(argv[1]);

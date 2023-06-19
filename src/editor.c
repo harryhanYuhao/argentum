@@ -100,8 +100,8 @@ int editorReadKey(void) {
 
 int editorProcessKeyPress(void) {
 	unsigned int c = KEY.key[0];
-  int textbufXPos = editorGetCursorTextbufX();
-  int textbufYPos = editorGetCursorTextbufY();
+  const unsigned int textbufXPos = editorGetCursorTextbufPosX();
+  const unsigned int textbufYPos = editorGetCursorTextbufPosY();
   switch (c){
     case '\0':
       break;
@@ -214,7 +214,7 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
   //          E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
   snprintf(buf, buf_size, 
            "E.cx: %d; E.cy: %d; TexbufX: %d; TexbufY: %d; rows: %d; cols: %d",
-           E.cx, E.cy, editorGetCursorTextbufX(), editorGetCursorTextbufY(), E.screenrows, E.screencols);
+           E.cx, E.cy, editorGetCursorTextbufPosX(), editorGetCursorTextbufPosY(), E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -390,18 +390,18 @@ void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
 }
 
 
-int editorGetCursorScreenX(void){
+int editorGetCursorScreenPosX(void){
   return E.cx;
 }
 
-int editorGetCursorScreenY(void){
+int editorGetCursorScreenPosY(void){
   return E.cy;
 }
 
-int editorGetCursorTextbufX(void){
+int editorGetCursorTextbufPosX(void){
   return E.cx - E.leftMarginSize + E.offsetx;
 }
 
-int editorGetCursorTextbufY(void){
+int editorGetCursorTextbufPosY(void){
   return E.cy + E.offsety;
 }
