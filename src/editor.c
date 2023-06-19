@@ -98,7 +98,7 @@ int editorReadKey(void) {
 }
 
 int editorProcessKeyPress(void) {
-	unsigned int c = KEY.key[0];
+  unsigned int c = KEY.key[0];
   const unsigned int textbufXPos = editorGetCursorTextbufPosX();
   const unsigned int textbufYPos = editorGetCursorTextbufPosY();
   switch (c){
@@ -110,12 +110,10 @@ int editorProcessKeyPress(void) {
       break;
     case 13:  // Enter key, or ctrl('m')
       textbufEnter(&TEXTBUF, textbufXPos, textbufYPos);
-      E.cx = 0;
+      E.ctpx = 0;
       // Scroll down when enter is used in last line of the screen
-      if (E.cy < E.screenrows - 1)
-        E.cy++;
-      else 
-        editorScrollDown();
+      // TODO: REFACTOR 
+      E.ctpy++;
       break;
     case KEY_ARROW_LEFT:
     case KEY_ARROW_RIGHT:
@@ -129,11 +127,11 @@ int editorProcessKeyPress(void) {
         editorMoveCursor(c);
       break;
     case KEY_DELETE: {
-        const unsigned int len = strlen(TEXTBUF.linebuf[textbufYPos]);
-        if ((textbufXPos) < len)
-          textbufDeleteChar(&TEXTBUF, textbufXPos, textbufYPos);
-        break;
-      }
+      const unsigned int len = strlen(TEXTBUF.linebuf[textbufYPos]);
+      if ((textbufXPos) < len)
+        textbufDeleteChar(&TEXTBUF, textbufXPos, textbufYPos);
+      break;
+    }
     case KEY_HOME:
     case KEY_END:
       break;
@@ -150,7 +148,7 @@ int editorProcessKeyPress(void) {
       // for now ignore all control-keys
       if (c < 27) 
         break;
-      // special characters are defined to be greater than 1000
+        // special characters are defined to be greater than 1000
       else if (c < 1000){ 
         textbufInputChar(&TEXTBUF, c, textbufXPos, textbufYPos);
         editorMoveCursor(KEY_ARROW_RIGHT);
@@ -208,12 +206,9 @@ static int appendWelcomeMessage(struct abuf *ptr) {
 void screenBufferAppendDebugInformation(struct abuf *abptr){
   const int buf_size = 100;
   char *buf = (char*)malloc(buf_size);
-  // snprintf(buf, buf_size, 
-  //          "E.cx: %d; E.cy: %d; strlen: %ld",
-  //          E.cx, E.cy, strlen(TEXTBUF.linebuf[E.cy + E.offsety]));
   snprintf(buf, buf_size, 
-           "E.cx: %d; E.cy: %d; TexbufX: %d; TexbufY: %d; rows: %d; cols: %d",
-           E.cx, E.cy, editorGetCursorTextbufPosX(), editorGetCursorTextbufPosY(), E.screenrows, E.screencols);
+           "TexbufX: %d; TexbufY: %d; rows: %d; cols: %d",
+            editorGetCursorTextbufPosX(), editorGetCursorTextbufPosY(), E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -229,8 +224,8 @@ void editorDrawRows(struct abuf *abptr) {
     // Create left margin (line number)
     char *leftMargin = (char *)calloc(E.leftMarginSize, 1);
     int lineNumber;
-    if (nrows ==  E.cy){
-      lineNumber = E.offsety + E.cy;
+    if (nrows ==  editorGetCursorScreenPosY()){
+      lineNumber = editorGetCursorTextbufPosY() + 1; // linenumber counts from 1
       snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
       // As in vim, the line number in the current line is aliged to right
       // Create necessary paddings
@@ -302,7 +297,9 @@ void editorRefreshScreen(void) {
   char buf[32];
 	// move cursor, row:cols; top left is 1:1
   // TODO: E.leftMarginSize
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1); 
+  const unsigned int CursorScreenX = editorGetCursorScreenPosX();
+  const unsigned int CursorScreenY = editorGetCursorScreenPosY();
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", CursorScreenY + 1, CursorScreenX + 1); 
   // abAppend(&ab, "\x1b[H", 3); 
   abAppend(&ab, buf, strlen(buf)); // To corrected position
 
@@ -328,45 +325,36 @@ void editorScrollRight(void) {
   E.offsetx++;
 }
 
-void editorMoveCursorXTo(unsigned int x){
-	E.cx = x;
+void editorCursorXToTextbufPos(unsigned int x){
+	E.ctpx = x;
 }
 
-void editorMoveCursorYTo( unsigned int y){
-	E.cy = y;
+void editorCursorYToTextbufPos( unsigned int y){
+	E.ctpy = y;
 }
 
-// TODO: Needs improvement: Current function does intermix 
-// TODO: the move cursor function and screen scrolling
-// BUG: bug remains
-// TODO: E refactor
 int editorMoveCursor(int key) {
   switch (key) {
   case KEY_ARROW_UP: 
   case KEY_PAGE_UP:
-		if (E.cy>0) 
-        E.cy--;
-    else if (E.offsety > 0)
-      editorScrollUp();
+    if (E.ctpy > 0) {
+      E.ctpy--;
+      if (editorGetCursorScreenPosY()<=1) E.offsety--;
+    }
     return 0;
   case KEY_ARROW_DOWN:
   case KEY_PAGE_DOWN:
-    if ((E.cy <  E.screenrows -1)&&(E.cy+E.offsety < TEXTBUF.size - 1))
-      E.cy++;
-    else if (E.cy + E.offsety < TEXTBUF.size - 1)
-      editorScrollDown();
+    if (E.ctpy >= TEXTBUF.size)
+      return 0;
+    E.ctpy++;
+    if (editorGetCursorScreenPosY()>=E.screenrows) E.offsety++;
     return 0;
   case KEY_ARROW_LEFT: 
-    // if (E.cx > 0) 
-      E.cx--;
-		// else if (E.cx + E.offsetx > 0)
-  //     editorScrollLeft();
+    if (E.ctpx >= 1)
+      E.ctpx--;
     return 0;
   case KEY_ARROW_RIGHT: 
-		// if ((E.cx + E.offsetx) < strlen(TEXTBUF.linebuf[E.cy + E.offsety]) ) 
-      E.cx++;
-    // else if (E.cx >= E.screencols - 1)
-    //   editorScrollRight();
+      E.ctpx++;
     return 0;
   default:
     return -1;
@@ -374,7 +362,8 @@ int editorMoveCursor(int key) {
   return -1;
 }
 
-// Set editorConfig.leftMarginSize according to number of lines stored in textbuf
+// Set editorConfig.leftMarginSize according to 
+// the digits of the maxium line number stored in textbuf
 // The minimum size of leftMarginSize is 4
 void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
   int NumberOflines = ptrtb->size; 
@@ -390,17 +379,17 @@ void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
 
 
 int editorGetCursorScreenPosX(void){
-  return E.cx;
+  return E.ctpx + E.leftMarginSize - E.offsetx; 
 }
 
 int editorGetCursorScreenPosY(void){
-  return E.cy;
+  return E.ctpy - E.offsety;
 }
 
 int editorGetCursorTextbufPosX(void){
-  return E.cx - E.leftMarginSize + E.offsetx;
+  return E.ctpx;
 }
 
 int editorGetCursorTextbufPosY(void){
-  return E.cy + E.offsety;
+  return E.ctpy;
 }

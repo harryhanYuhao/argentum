@@ -8,17 +8,25 @@ All texts are stored in buffer `struct textbuf TEXTBUF`. Many buffer may exists 
 
 ### Screen-Cursor-Buffer Interaction
 
-Screen will show the approipriate portion of the buffer with auxillary informations; pressing key will modify the buffer accordingly, orchange the way how the textbuffer is presented on screen. 
+Screen will show the approipriate portion of the buffer with auxillary informations; 
+pressing key will modify the buffer accordingly, or change the way how the textbuffer is presented on screen. 
 
-The cursor position is the position of the cursor on screen; with the upper left corner being 1,1. The x, y position of the cursor are stored in the global variable `E.cx`, `E.cy`. The current position of the cursor is equivalent to `\x1b[1+E.cx; E.cyH`.
+The cursor position is the position of the cursor on screen. 
+With the upper left corner being 1,1, the x, y position of the cursor are stored in the global variable `E.cx`, `E.cy`. 
+The current position of the cursor is rendered onto screen by sending this to terminal: `\x1b[1+E.cx; E.cyH`.
 
-## Screen-Curosr-Text Interaction
+The cursor textbuffer position (CTP) is the position of the cursor in the textbuffer. Cursor screen position (CSP) is updated according to CTP.
 
-The cursor textbuffer position (CTP) is the position of the cursor in the textbuffer. 
+CTP is stored in the global variable `E.ctpx` and `E.ctpy`. 
+They are setted to be 0 upon initialisation.
 
-The cursor textbuffer position is the base for cursor screen position (CSP). Textbuffer is edited based on CTP, and CTP may be changed accordingly. The cursor screen position is modified according to CTP. Finally, the cursor is renderred onto the screen with its CSP.
+CTP can be retrieved by `int editorGetCursorTextbufPosX(void)` and `int editorGetCursorTextbufPosY(void)`. 
 
-CTP is setted to (0,0), at initialisation.
+CSP can be retrieved by `int editorGetCursorScreenPosX(void)` and `int editorGetCursorScreenPosY(void)`.
+
+#### Difference between CTP and CSP
+
+CTP is the position of the cursor in the textbuffer. We can modify textbuf using CTP. It differs from CSP, as CSP needs to take into account of line wraping, left margin, window position, etc.
 
 ## Globle Variables
 

@@ -36,6 +36,7 @@ Fixed bugs for function `textbufNewLineAbove()`. Rename it to `textbufEnter()`.
 `textbufEnter(int x, int y)` now acts like `enter` in a normal editor, where a new line is created below, holding the characters of the old line from the cursor, while the old line contains the character upto the cursor.
 
 
+
 # June 1
 
 Key listener refactored. 
@@ -59,3 +60,7 @@ Started to implement the global variable for cursor screen position and cursor t
 # June 18
 
 Continue to refactor global variable for cursor screen position and cursor textbuf position
+
+# June 19 
+
+Refactoring Cursor position mechanism is mostly done. I have also refactored the key values to be macros instead of enum.

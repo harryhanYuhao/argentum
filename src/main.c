@@ -13,8 +13,8 @@ extern textbuf TEXTBUF;
 
 /*** init ***/
 void init(void) {
-  E.cx = 0; // E is global variable
-  E.cy = 0;
+  E.ctpx = 0;
+  E.ctpy = 0;
   E.offsety = 0;
   E.offsetx = 0;
 	E.mode = 1; // 1 insert mode
@@ -40,7 +40,6 @@ int main(int argc, char *argv[], char *envp[]) {
   }
   // Margin Size depends on the textbuffer read.
   editorSetMarginSize(&E, &TEXTBUF);
-  E.cx = E.leftMarginSize;
   while (PU.running) { // PU is global struct, [P]rogram [U]tils
     if (editorReadKey() == -1)
       die("editorReadKey Failed");

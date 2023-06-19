@@ -13,8 +13,8 @@ void editorInit(void);
 void editorSaveFile(char *);
 void editorOpen(const char *);
 int editorMoveCursor(int);
-void editorMoveCursorXTo(unsigned int);
-void editorMoveCursorYTo(unsigned int);
+void editorCursorXToTextbufPos(unsigned int);
+void editorCursorYToTextbufPos(unsigned int);
 void editorSetMarginSize(struct editorConfig *, textbuf *);
 
 void editorScrollDown(void);

@@ -133,7 +133,7 @@ int textbufDeleteLineBreak(textbuf *t, unsigned int y){
 	t->size--;
 	editorMoveCursor(KEY_ARROW_UP);
   // WARNING: CURSOR/TEXTBUF COORDINATE 
-	editorMoveCursorXTo(lenUpper + E.leftMarginSize);
+	editorCursorXToTextbufPos(lenUpper);
 	return 1;
 }
 
