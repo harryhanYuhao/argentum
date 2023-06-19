@@ -65,29 +65,29 @@ int editorReadKey(void) {
     else if (seq[2]!='~') 
       return '\x1b'; 
     else if (seq[1] == '3')
-      KEY.key[0] = DEL_KEY;
+      KEY.key[0] = KEY_DELETE;
     else if (seq[1] == '5')
-      KEY.key[0] = PAGE_UP;
+      KEY.key[0] = KEY_PAGE_UP;
     else if (seq[1] == '6')
-      KEY.key[0] = PAGE_DOWN;
+      KEY.key[0] = KEY_PAGE_DOWN;
     break;
   case 'A':
-		KEY.key[0] = ARROW_UP;
+		KEY.key[0] = KEY_ARROW_UP;
 		break;
   case 'B':
-		KEY.key[0] = ARROW_DOWN;
+		KEY.key[0] = KEY_ARROW_DOWN;
 		break;
   case 'C':
-		KEY.key[0] = ARROW_RIGHT;
+		KEY.key[0] = KEY_ARROW_RIGHT;
 		break;
   case 'D':
-		KEY.key[0] = ARROW_LEFT;
+		KEY.key[0] = KEY_ARROW_LEFT;
 		break;
   case 'H':
-		KEY.key[0] = HOME_KEY;
+		KEY.key[0] = KEY_HOME;
 		break;
   case 'F':
-		KEY.key[0] = END_KEY;
+		KEY.key[0] = KEY_END;
 		break;
   default:
     return '\x1b';
@@ -117,30 +117,30 @@ int editorProcessKeyPress(void) {
       else 
         editorScrollDown();
       break;
-    case ARROW_LEFT:
-    case ARROW_RIGHT:
-    case ARROW_DOWN:
-    case ARROW_UP:
+    case KEY_ARROW_LEFT:
+    case KEY_ARROW_RIGHT:
+    case KEY_ARROW_DOWN:
+    case KEY_ARROW_UP:
       editorMoveCursor(c);
       break;
-    case PAGE_UP:
-    case PAGE_DOWN:
+    case KEY_PAGE_UP:
+    case KEY_PAGE_DOWN:
       for (unsigned int i = 0; i < E.screenrows; i++)
         editorMoveCursor(c);
       break;
-    case DEL_KEY: {
+    case KEY_DELETE: {
         const unsigned int len = strlen(TEXTBUF.linebuf[textbufYPos]);
         if ((textbufXPos) < len)
           textbufDeleteChar(&TEXTBUF, textbufXPos, textbufYPos);
         break;
       }
-    case HOME_KEY:
-    case END_KEY:
+    case KEY_HOME:
+    case KEY_END:
       break;
     case 127:  // Backspace
       if (textbufXPos > 0){
         textbufDeleteChar(&TEXTBUF, textbufXPos - 1, textbufYPos);
-        editorMoveCursor(ARROW_LEFT);
+        editorMoveCursor(KEY_ARROW_LEFT);
       } else if (textbufYPos > 0 && textbufXPos<TEXTBUF.size){
         textbufDeleteLineBreak(&TEXTBUF, textbufYPos);
       }
@@ -153,7 +153,7 @@ int editorProcessKeyPress(void) {
       // special characters are defined to be greater than 1000
       else if (c < 1000){ 
         textbufInputChar(&TEXTBUF, c, textbufXPos, textbufYPos);
-        editorMoveCursor(ARROW_RIGHT);
+        editorMoveCursor(KEY_ARROW_RIGHT);
       }
       break;
   }
@@ -342,27 +342,27 @@ void editorMoveCursorYTo( unsigned int y){
 // TODO: E refactor
 int editorMoveCursor(int key) {
   switch (key) {
-  case ARROW_UP: 
-  case PAGE_UP:
+  case KEY_ARROW_UP: 
+  case KEY_PAGE_UP:
 		if (E.cy>0) 
         E.cy--;
     else if (E.offsety > 0)
       editorScrollUp();
     return 0;
-  case ARROW_DOWN:
-  case PAGE_DOWN:
+  case KEY_ARROW_DOWN:
+  case KEY_PAGE_DOWN:
     if ((E.cy <  E.screenrows -1)&&(E.cy+E.offsety < TEXTBUF.size - 1))
       E.cy++;
     else if (E.cy + E.offsety < TEXTBUF.size - 1)
       editorScrollDown();
     return 0;
-  case ARROW_LEFT: 
+  case KEY_ARROW_LEFT: 
     // if (E.cx > 0) 
       E.cx--;
 		// else if (E.cx + E.offsetx > 0)
   //     editorScrollLeft();
     return 0;
-  case ARROW_RIGHT: 
+  case KEY_ARROW_RIGHT: 
 		// if ((E.cx + E.offsetx) < strlen(TEXTBUF.linebuf[E.cy + E.offsety]) ) 
       E.cx++;
     // else if (E.cx >= E.screencols - 1)

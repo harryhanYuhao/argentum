@@ -9,17 +9,43 @@
 #define KILO_VERSION_MINOR 0
 #define KILO_VERSION_PATCH 1
 
-enum {
-  ARROW_UP = 1065, 
-  ARROW_DOWN = 1066,
-  ARROW_LEFT = 1067,
-  ARROW_RIGHT = 1068,
-  PAGE_UP = 1053, 
-  PAGE_DOWN = 1054,
-  DEL_KEY = 1051, 
-  END_KEY = 1070, 
-  HOME_KEY = 1072,
-};
+// Key values
+
+#ifndef KEY_ARROW_UP
+#define KEY_ARROW_UP 1065
+#endif
+
+#ifndef KEY_ARROW_DOWN
+#define KEY_ARROW_DOWN 1066
+#endif
+
+#ifndef KEY_ARROW_LEFT
+#define KEY_ARROW_LEFT 1067
+#endif
+
+#ifndef KEY_ARROW_RIGHT
+#define KEY_ARROW_RIGHT 1068
+#endif
+
+#ifndef KEY_PAGE_UP
+#define KEY_PAGE_UP 1053
+#endif
+
+#ifndef KEY_PAGE_DOWN
+#define KEY_PAGE_DOWN 1054
+#endif
+
+#ifndef KEY_DELETE
+#define KEY_DELETE 1051
+#endif
+
+#ifndef KEY_END
+#define KEY_END 1070
+#endif
+
+#ifndef KEY_HOME
+#define KEY_HOME 1072
+#endif
 
 #include "utils.h"
 #include <termios.h>
