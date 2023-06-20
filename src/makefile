@@ -6,6 +6,10 @@ COPTIMISING=-O0 -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstric
 
 CFLAGS=-std=c11 $(CWARNINGS) $(COPTIMISING) -lm
 
+INSTALL_DIR=$(HOME)/psu/bin
+
+# Auxillary Variables
+
 RED=\033[0;31m
 BLUE=\033[0;34m
 NC=\033[0m
@@ -14,7 +18,7 @@ all: argentum
 
 argentum: main.o 
 	@echo "--------------------------------------------------"
-	@echo -e "$(RED)LINKING$(NC): Producing Executable a.out"
+	@echo -e "$(RED)LINKING$(NC): Producing Executable 'argentum'"
 	@$(CC) $(CFLAGS) main.o utils.o terminal.o globals.o editor.o -o argentum
 	@echo "--------------------------------------------------"
 
@@ -44,7 +48,7 @@ editor.o: editor.h editor.c globals.o utils.o
 	@$(CC) $(CFLAGS) -c editor.c 
 
 install: argentum 
-	cp argentum -t ~/psu/bin
+	cp argentum -t $(INSTALL_DIR)
 
 # For making test file in ../test directory
 test: all

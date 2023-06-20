@@ -110,10 +110,10 @@ int editorProcessKeyPress(void) {
       break;
     case 13:  // Enter key, or ctrl('m')
       textbufEnter(&TEXTBUF, textbufXPos, textbufYPos);
-      E.ctpx = 0;
+      E.cursorTextbufPosX = 0;
       // Scroll down when enter is used in last line of the screen
       // TODO: REFACTOR 
-      E.ctpy++;
+      E.cursorTextbufPosY++;
       break;
     case KEY_ARROW_LEFT:
     case KEY_ARROW_RIGHT:
@@ -207,8 +207,9 @@ void screenBufferAppendDebugInformation(struct abuf *abptr){
   const int buf_size = 100;
   char *buf = (char*)malloc(buf_size);
   snprintf(buf, buf_size, 
-           "TexbufX: %d; TexbufY: %d; rows: %d; cols: %d",
-            editorGetCursorTextbufPosX(), editorGetCursorTextbufPosY(), E.screenrows, E.screencols);
+           "TexbufX: %d; TexbufY: %d; ScreenY: %d; rows: %d; cols: %d",
+            editorGetCursorTextbufPosX(), editorGetCursorTextbufPosY(),
+            editorGetCursorScreenPosY(),E.screenrows, E.screencols);
   abAppend(DEB.debugString, buf, strlen(buf));  // Append message to the global struct
   free(buf);
   abAppend(abptr, DEB.debugString->b, DEB.debugString->len);	
@@ -261,7 +262,7 @@ void editorDrawRows(struct abuf *abptr) {
     }
 
     if (n_rows_to_draw >= TEXTBUF.size) {
-      // abAppend(abptr, "~", 1);
+      continue;
     }
     else if (nrows == E.screenrows-1){ // For debugging purpose
       screenBufferAppendDebugInformation(abptr);
@@ -296,7 +297,6 @@ void editorRefreshScreen(void) {
   // Move mouse to correct position
   char buf[32];
 	// move cursor, row:cols; top left is 1:1
-  // TODO: E.leftMarginSize
   const unsigned int CursorScreenX = editorGetCursorScreenPosX();
   const unsigned int CursorScreenY = editorGetCursorScreenPosY();
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", CursorScreenY + 1, CursorScreenX + 1); 
@@ -326,35 +326,37 @@ void editorScrollRight(void) {
 }
 
 void editorCursorXToTextbufPos(unsigned int x){
-	E.ctpx = x;
+	E.cursorTextbufPosX = x;
 }
 
 void editorCursorYToTextbufPos( unsigned int y){
-	E.ctpy = y;
+	E.cursorTextbufPosY = y;
 }
 
+// TODO: LEFT/WRITE ARROW MECHANISM
 int editorMoveCursor(int key) {
   switch (key) {
   case KEY_ARROW_UP: 
   case KEY_PAGE_UP:
-    if (E.ctpy > 0) {
-      E.ctpy--;
-      if (editorGetCursorScreenPosY()<=1) E.offsety--;
+    if (E.cursorTextbufPosY > 0) {
+      if (editorGetCursorScreenPosY() <= 0) --E.offsety;
+      E.cursorTextbufPosY--;
     }
     return 0;
   case KEY_ARROW_DOWN:
   case KEY_PAGE_DOWN:
-    if (E.ctpy >= TEXTBUF.size)
-      return 0;
-    E.ctpy++;
-    if (editorGetCursorScreenPosY()>=E.screenrows) E.offsety++;
+    if (E.cursorTextbufPosY < TEXTBUF.size){
+      // screenPos counts from 0, screen rows counts from 1
+      if (editorGetCursorScreenPosY() >= E.screenrows-1) ++E.offsety;
+      E.cursorTextbufPosY++;
+    }
     return 0;
   case KEY_ARROW_LEFT: 
-    if (E.ctpx >= 1)
-      E.ctpx--;
+    if (E.cursorTextbufPosX >= 1)
+      E.cursorTextbufPosX--;
     return 0;
   case KEY_ARROW_RIGHT: 
-      E.ctpx++;
+      E.cursorTextbufPosX++;
     return 0;
   default:
     return -1;
@@ -379,17 +381,17 @@ void editorSetMarginSize(struct editorConfig *ptr,textbuf *ptrtb){
 
 
 int editorGetCursorScreenPosX(void){
-  return E.ctpx + E.leftMarginSize - E.offsetx; 
+  return E.cursorTextbufPosX + E.leftMarginSize - E.offsetx; 
 }
 
 int editorGetCursorScreenPosY(void){
-  return E.ctpy - E.offsety;
+  return E.cursorTextbufPosY - E.offsety;
 }
 
 int editorGetCursorTextbufPosX(void){
-  return E.ctpx;
+  return E.cursorTextbufPosX;
 }
 
 int editorGetCursorTextbufPosY(void){
-  return E.ctpy;
+  return E.cursorTextbufPosY;
 }

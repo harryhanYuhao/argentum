@@ -1,4 +1,4 @@
-#include <pthread.h>
+// #include <pthread.h>
 
 #include "globals.h"
 #include "terminal.h"
@@ -13,8 +13,8 @@ extern textbuf TEXTBUF;
 
 /*** init ***/
 void init(void) {
-  E.ctpx = 0;
-  E.ctpy = 0;
+  E.cursorTextbufPosX = 0;
+  E.cursorTextbufPosY = 0;
   E.offsety = 0;
   E.offsetx = 0;
 	E.mode = 1; // 1 insert mode

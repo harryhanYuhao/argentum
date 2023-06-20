@@ -75,7 +75,7 @@ int textbufDeleteLineBreak(textbuf *, unsigned int);
 struct editorConfig {
   unsigned int cx, cy;     // cursor position. cx horizantol, cy vertical
   // unsigned int cspx, cspy; // cursor screen position. cx horizantol, cy vertical
-  unsigned int ctpx, ctpy; // Cursor textbuf position
+  unsigned int cursorTextbufPosX, cursorTextbufPosY; // Cursor textbuf position
   unsigned int screenrows; // number of rows that fit in the screen
   unsigned int screencols; // number of columns that fit in the screen
   unsigned int offsetx;    // Display offset, x direction
@@ -105,7 +105,7 @@ int keyInit(struct key *);
 int keyRefresh(struct key *);
 
 struct debugUtil{
-	struct abuf * debugString;
+	struct abuf *debugString;
 };
 
 int debugUtilInit(struct debugUtil*);

@@ -31,7 +31,7 @@ void die(const char *);
 
 
 #ifndef _POSIX_C_SOURCE 
-#define _POSIX_C_SOURCE 0
+#define _POSIX_C_SOURCE -1
 #endif
 
 #if !_POSIX_C_SOURCE >= 200809L || ! defined _GNU_SOURCE 
