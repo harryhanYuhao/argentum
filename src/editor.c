@@ -113,7 +113,7 @@ int editorProcessKeyPress(void) {
       E.cursorTextbufPosX = 0;
       // Scroll down when enter is used in last line of the screen
       // TODO: REFACTOR 
-      E.cursorTextbufPosY++;
+      editorMoveCursor(KEY_ARROW_DOWN);
       break;
     case KEY_ARROW_LEFT:
     case KEY_ARROW_RIGHT:
@@ -345,7 +345,7 @@ int editorMoveCursor(int key) {
     return 0;
   case KEY_ARROW_DOWN:
   case KEY_PAGE_DOWN:
-    if (E.cursorTextbufPosY < TEXTBUF.size){
+    if (E.cursorTextbufPosY < TEXTBUF.size - 1){
       // screenPos counts from 0, screen rows counts from 1
       if (editorGetCursorScreenPosY() >= E.screenrows-1) ++E.offsety;
       E.cursorTextbufPosY++;

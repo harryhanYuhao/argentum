@@ -64,3 +64,7 @@ Continue to refactor global variable for cursor screen position and cursor textb
 # June 19 
 
 Refactoring Cursor position mechanism is mostly done. I have also refactored the key values to be macros instead of enum.
+
+# June 21 
+
+Improve the move cursor functionality. 

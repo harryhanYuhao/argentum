@@ -90,10 +90,10 @@ void textbufDeleteChar(textbuf *ptrtb, int x, int y) {
   }
 }
 
-// Input E.cy + E.offsety
 void textbufEnter(textbuf *ptrtb, unsigned int x, unsigned int y) {
+// Input: pointer to textbuf, TEXTBUFPosX, TEXTBUFPosY
   const unsigned int len = ptrtb->size;
-  if (y <= len + 1) {
+  if (y < len) {
     ptrtb->size++;
     char **linebuf = ptrtb->linebuf;
     linebuf = realloc(linebuf, (len + 1) * sizeof(char *));
