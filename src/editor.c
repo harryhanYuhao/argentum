@@ -238,20 +238,21 @@ void editorDrawRows(struct abuf *abptr) {
         }
       }
       abAppend(abptr, "\x1b[1m", 4);
-      abAppend(abptr, leftMargin, strlen(leftMargin));
+      abAppend(abptr, leftMargin, strnlen_s(leftMargin, 256));
       abAppend(abptr, "\x1b[0m", 4);
       // the extra space
       abAppend(abptr, " ", 1);
     } else {
-      int temp;
-      lineNumber = (temp = (nrows - E.cy)) > 0 ? temp : -temp; 
+      const int temp = nrows - editorGetCursorScreenPosY();
+      lineNumber = temp > 0 ? temp : -temp; 
       // Only display relative number for lines displayed by textbuf
       if ((nrows+ E.offsety) < TEXTBUF.size){
         snprintf(leftMargin, E.leftMarginSize, "%d", lineNumber);
-      } else {
+      } 
+      else {
         snprintf(leftMargin, E.leftMarginSize, "~");
       }
-      abAppend(abptr, leftMargin, strlen(leftMargin));
+      abAppend(abptr, leftMargin, strnlen_s(leftMargin, 256));
       // Create necessary paddings
       // recall E.leftMarginSize is seted to 1 more than the maximum 
       for (size_t i = 0; i < E.leftMarginSize-strlen(leftMargin)-1; i++){
@@ -262,7 +263,6 @@ void editorDrawRows(struct abuf *abptr) {
     }
 
     if (n_rows_to_draw >= TEXTBUF.size) {
-      continue;
     }
     else if (nrows == E.screenrows-1){ // For debugging purpose
       screenBufferAppendDebugInformation(abptr);
