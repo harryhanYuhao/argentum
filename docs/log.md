@@ -68,3 +68,7 @@ Refactoring Cursor position mechanism is mostly done. I have also refactored the
 # June 21 
 
 Improve the move cursor functionality. 
+
+# June 23
+
+Added function `editorCursorMovableToRight()`.

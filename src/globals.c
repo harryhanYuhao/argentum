@@ -15,8 +15,8 @@ void textbufInit(textbuf *t) {
     die("Failed to Init Textbuf!");
 }
 
-int textbufGetNthLineLength(textbuf *t, int y){
-	return strlen(t->linebuf[y]);
+unsigned int textbufGetNthLineLength(textbuf *t, int y){
+	return strnlen_s(t->linebuf[y], 4096);
 }
 
 #include <string.h>
@@ -132,7 +132,6 @@ int textbufDeleteLineBreak(textbuf *t, unsigned int y){
 	t->linebuf = realloc(t->linebuf, (t->size - 1));
 	t->size--;
 	editorMoveCursor(KEY_ARROW_UP);
-  // WARNING: CURSOR/TEXTBUF COORDINATE 
 	editorCursorXToTextbufPos(lenUpper);
 	return 1;
 }

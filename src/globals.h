@@ -60,7 +60,7 @@ typedef struct {
 
 #include <stddef.h>
 void textbufInit(textbuf *);
-int textbufGetNthLineLength(textbuf *, int);
+unsigned int textbufGetNthLineLength(textbuf *, int);
 
 #include <stdio.h>
 int textbufRead(textbuf *, FILE *);

@@ -356,6 +356,10 @@ int editorMoveCursor(int key) {
       E.cursorTextbufPosX--;
     return 0;
   case KEY_ARROW_RIGHT: 
+    if (editorCursorMovableToRight(&TEXTBUF,
+        editorGetCursorTextbufPosX(),
+        editorGetCursorTextbufPosY())
+      )
       E.cursorTextbufPosX++;
     return 0;
   default:
@@ -394,4 +398,11 @@ int editorGetCursorTextbufPosX(void){
 
 int editorGetCursorTextbufPosY(void){
   return E.cursorTextbufPosY;
+}
+
+// See if the cursor can be moved further to write 
+// with current cursro textbuf postion and textbuffer 
+int editorCursorMovableToRight(
+  textbuf * txb, unsigned int cursorTxbPosX, unsigned int cursorTxbPosY){
+  return textbufGetNthLineLength(txb, cursorTxbPosY) >= cursorTxbPosX + 1; 
 }
