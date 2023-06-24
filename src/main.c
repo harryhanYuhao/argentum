@@ -34,6 +34,7 @@ int main(int argc, char *argv[], char *envp[]) {
   init();
   if (argc > 1) {
     editorOpen(argv[1]);
+    abAppend(&E.fileName, argv[1], strnlen_s(argv[1], 256)); 
   } 
   if (argc <= 1) {
     editorOpen("aaa.txt");

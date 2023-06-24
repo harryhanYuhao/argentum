@@ -25,4 +25,6 @@ int editorGetCursorScreenPosY(void);
 int editorGetCursorTextbufPosX(void);
 int editorGetCursorTextbufPosY(void);
 int editorCursorMovableToRight(textbuf *, unsigned int, unsigned int);
+void editorMoveCursorToEndOfLine(textbuf *, unsigned int);
+void editorConfineCursorPosition(textbuf *, int x, int y);
 #endif // For EDITOR_H

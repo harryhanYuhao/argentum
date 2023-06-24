@@ -69,6 +69,12 @@ Refactoring Cursor position mechanism is mostly done. I have also refactored the
 
 Improve the move cursor functionality. 
 
-# June 23
+# June 23 
 
 Added function `editorCursorMovableToRight()`.
+
+# June 24
+
+Improve cursor movement mechanism so that the cursor will always be in position corresponding to a valid textbuffer position.
+
+Added save file key map (ctrl-s)

@@ -50,7 +50,7 @@
 #include "utils.h"
 #include <termios.h>
 
-typedef struct {
+typedef struct textbuf {
   // TODO: Change size to numlines
   unsigned int size; // Total number of lines
   char **linebuf;    // A pointer storing pointer to line buffer
@@ -75,6 +75,7 @@ int textbufDeleteLineBreak(textbuf *, unsigned int);
 struct editorConfig {
   unsigned int cx, cy;     // cursor position. cx horizantol, cy vertical
   // unsigned int cspx, cspy; // cursor screen position. cx horizantol, cy vertical
+  // TODO: set cursorTextbufPosX, cursorTextbufPosY to be int; they are not unsigned int
   unsigned int cursorTextbufPosX, cursorTextbufPosY; // Cursor textbuf position
   unsigned int screenrows; // number of rows that fit in the screen
   unsigned int screencols; // number of columns that fit in the screen
@@ -82,6 +83,7 @@ struct editorConfig {
   unsigned int offsety;
   unsigned int mode; // Indicator for mode
   unsigned int leftMarginSize;
+  struct abuf fileName;
   struct termios orig_termios;
 };
 

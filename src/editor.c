@@ -104,6 +104,9 @@ int editorProcessKeyPress(void) {
   switch (c){
     case '\0':
       break;
+    case CTRL_KEY('s'):
+      editorSaveFile(E.fileName.b);
+      break;
     case CTRL_KEY('q'):
       clearScreen();
       PU.running = 0;
@@ -265,7 +268,7 @@ void editorDrawRows(struct abuf *abptr) {
     if (n_rows_to_draw >= TEXTBUF.size) {
     }
     else if (nrows == E.screenrows-1){ // For debugging purpose
-      screenBufferAppendDebugInformation(abptr);
+      // screenBufferAppendDebugInformation(abptr);
 		}
     else {
       if (TEXTBUF.linebuf == NULL) return; 
@@ -329,8 +332,29 @@ void editorCursorXToTextbufPos(unsigned int x){
 	E.cursorTextbufPosX = x;
 }
 
-void editorCursorYToTextbufPos( unsigned int y){
+void editorCursorYToTextbufPos(unsigned int y){
 	E.cursorTextbufPosY = y;
+}
+
+void editorMoveCursorToEndOfLine(textbuf * txb, unsigned int y){
+  // input, textbuf, line number
+  editorCursorXToTextbufPos(
+    textbufGetNthLineLength(txb, y));
+  return;
+}
+
+void editorConfineCursorPosition(textbuf *txb, int xPos, int yPos){
+  if (xPos<0)
+    editorCursorXToTextbufPos(0);
+
+  int lineLength = textbufGetNthLineLength(txb, yPos);
+  if (xPos >= lineLength){
+    editorCursorXToTextbufPos(lineLength);
+  }
+  if (yPos<0)
+    editorCursorYToTextbufPos(0);
+  if (yPos>(txb->size))
+    editorCursorYToTextbufPos(txb->size);
 }
 
 // TODO: LEFT/WRITE ARROW MECHANISM
@@ -342,7 +366,7 @@ int editorMoveCursor(int key) {
       if (editorGetCursorScreenPosY() <= 0) --E.offsety;
       E.cursorTextbufPosY--;
     }
-    return 0;
+    break;
   case KEY_ARROW_DOWN:
   case KEY_PAGE_DOWN:
     if (E.cursorTextbufPosY < TEXTBUF.size - 1){
@@ -350,22 +374,29 @@ int editorMoveCursor(int key) {
       if (editorGetCursorScreenPosY() >= E.screenrows-1) ++E.offsety;
       E.cursorTextbufPosY++;
     }
-    return 0;
+    break;
   case KEY_ARROW_LEFT: 
-    if (E.cursorTextbufPosX >= 1)
+    // E.cursorTextbufPosX is unsigned int
+    if (E.cursorTextbufPosX > 0) 
       E.cursorTextbufPosX--;
-    return 0;
+    break;
   case KEY_ARROW_RIGHT: 
     if (editorCursorMovableToRight(&TEXTBUF,
         editorGetCursorTextbufPosX(),
         editorGetCursorTextbufPosY())
       )
       E.cursorTextbufPosX++;
-    return 0;
+    break;
   default:
     return -1;
   }
-  return -1;
+
+  // Move the cursor back to valid location
+  // A valid location is a location in range of the textbuffer
+  editorConfineCursorPosition(&TEXTBUF,
+                              editorGetCursorTextbufPosX(),
+                              editorGetCursorTextbufPosY());
+  return 0;
 }
 
 // Set editorConfig.leftMarginSize according to 
