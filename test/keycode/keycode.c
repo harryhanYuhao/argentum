@@ -1,9 +1,38 @@
+// terminal raw mode is enabled: the keypress is registerred immediately after pressing
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+
+void enableRAWMode(void);
+
+int main(int argc, char **argv) {
+  enableRAWMode();
+  char temp;
+  while (1) {
+    if (read(STDIN_FILENO, &temp, 1)) {
+      char *ctemp = (char *)malloc(16);
+      switch (temp) {
+      case 27:
+        snprintf(ctemp, 4, "ESC");
+        break;
+      case 13:
+        snprintf(ctemp, 6, "ENTER");
+        break;
+      case 127:
+        snprintf(ctemp, 10, "BACKSPACE");
+        break;
+      default:
+        snprintf(ctemp, 2, "%c", temp);
+      }
+      printf("Code: %d (\'%s\')\r\n", temp, ctemp);
+      if (temp == 13) printf("\n");
+    }
+  }
+  return 0;
+}
 
 struct termios origin;
 
@@ -39,28 +68,3 @@ void enableRAWMode(void) {
   }
 }
 
-int main(int argc, char **argv) {
-  enableRAWMode();
-  char temp;
-  while (1) {
-    if (read(STDIN_FILENO, &temp, 1)) {
-      char *ctemp = (char *)malloc(16);
-      switch (temp) {
-      case 27:
-        snprintf(ctemp, 4, "ESC");
-        break;
-      case 13:
-        snprintf(ctemp, 6, "ENTER");
-        break;
-      case 127:
-        snprintf(ctemp, 10, "BACKSPACE");
-        break;
-      default:
-        snprintf(ctemp, 2, "%c", temp);
-      }
-      printf("Code: %d (\'%s\')\r\n", temp, ctemp);
-      if (temp == 13) printf("\n");
-    }
-  }
-  return 0;
-}
